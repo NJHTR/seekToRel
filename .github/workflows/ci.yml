@@ -81,7 +81,7 @@ jobs:
           java-version: '21'
           cache: maven
       - name: Cache OWASP vulnerability database
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .security/dependency-check-data
           key: dependency-check-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
