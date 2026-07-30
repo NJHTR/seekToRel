@@ -1,0 +1,16 @@
+target/
+.compile-check/
+.compile-check-*/
+.idea/
+.run/
+.env
+report-ai-ui/node_modules/
+report-ai-ui/dist/
+*.iml
+*.log
+.env
+.env.local
+docker-data/
+node_modules/
+dist/
+.security/

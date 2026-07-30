@@ -1,0 +1,5 @@
+package com.reportai.task;
+
+public enum ReportTaskStatus {
+    CREATED, PARSING, PLANNING, EXECUTING, REVIEWING, EXPORTING, PAUSED, SUCCEEDED, FAILED, CANCELLED
+}
