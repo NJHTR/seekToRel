@@ -68,6 +68,14 @@ class ProgramPrecheckEngineTest {
     }
 
     @Test
+    void staleSnapshotRoutesToRecovery() {
+        var base = request("payload", "text/plain", List.of(), List.of());
+        var stale = new InputSnapshot(1, base.inputSnapshot().snapshotId(), tenant, List.of(), Sha256Digest.ofText("old"), List.of(), NOW, java.util.Map.of());
+        var changed = new PrecheckRequest(tenant, base.taskId(), base.operation(), base.agentId(), stale, base.input(), base.format(), base.schemaVersion(), base.evidence(), base.rulePack(), base.contextBudget(), base.context(), base.policyExpiresAt());
+        assertEquals(PrecheckRoute.RECOVERY, new ProgramPrecheckEngine(() -> NOW).check(changed).recommendedRoute());
+    }
+
+    @Test
     void duplicatePolicyViolationStillIsolates() {
         var input = "prompt injection ../";
         var base = request(input, "text/plain", List.of(), List.of());

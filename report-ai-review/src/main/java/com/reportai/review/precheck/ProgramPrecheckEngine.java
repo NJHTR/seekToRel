@@ -14,6 +14,7 @@ public final class ProgramPrecheckEngine {
         Objects.requireNonNull(request, "request"); Instant now = timeSource.now();
         String normalized = normalize(request.input()); Sha256Digest original = Sha256Digest.ofText(request.input()); Sha256Digest normalizedDigest = Sha256Digest.ofText(normalized);
         List<PrecheckFinding> findings = new ArrayList<>();
+        if (!request.inputSnapshot().contentDigest().equals(original)) findings.add(finding(PrecheckStage.NORMALIZATION,"snapshot.digest",PrecheckSeverity.ERROR,"SNAPSHOT_STALE","Input snapshot does not match supplied input",55));
         if (request.input().isBlank()) findings.add(finding(PrecheckStage.NORMALIZATION,"input.non_blank",PrecheckSeverity.ERROR,"INPUT_BLANK","Input is empty",0));
         if (request.input().length() > request.contextBudget().maxChars() * 4) findings.add(finding(PrecheckStage.FORMAT_SECURITY,"input.max_size",PrecheckSeverity.CRITICAL,"INPUT_TOO_LARGE","Input exceeds the permitted size",80));
         String lower = normalized.toLowerCase(Locale.ROOT);
@@ -38,7 +39,7 @@ public final class ProgramPrecheckEngine {
         boolean hardBlock = cross > 0 || findings.stream().anyMatch(f -> f.code().equals("POLICY_BLOCK"));
         if (hardBlock) { decision=PrecheckDecision.ISOLATE; route=PrecheckRoute.ISOLATE; }
         else if (request.priorInputDigests().contains(normalizedDigest)) { decision=PrecheckDecision.DEDUPLICATE; route=PrecheckRoute.DEDUPLICATE; }
-        else if (missing>0) { decision=PrecheckDecision.WAITING_FOR_INPUT; route=PrecheckRoute.WAITING_FOR_INPUT; } else if (mismatch>0 || expired>0) { decision=PrecheckDecision.RECOVERY; route=PrecheckRoute.RECOVERY; } else if (score>=80) { decision=PrecheckDecision.REJECT; route=PrecheckRoute.REJECT; } else if (ambiguous) { decision=PrecheckDecision.HUMAN_REVIEW; route=PrecheckRoute.HUMAN_REVIEW; } else { decision=PrecheckDecision.ACCEPT; route=PrecheckRoute.AGENT; }
+        else if (missing>0) { decision=PrecheckDecision.WAITING_FOR_INPUT; route=PrecheckRoute.WAITING_FOR_INPUT; } else if (mismatch>0 || expired>0 || findings.stream().anyMatch(f->f.code().equals("SNAPSHOT_STALE"))) { decision=PrecheckDecision.RECOVERY; route=PrecheckRoute.RECOVERY; } else if (score>=80) { decision=PrecheckDecision.REJECT; route=PrecheckRoute.REJECT; } else if (ambiguous) { decision=PrecheckDecision.HUMAN_REVIEW; route=PrecheckRoute.HUMAN_REVIEW; } else { decision=PrecheckDecision.ACCEPT; route=PrecheckRoute.AGENT; }
         findings.sort(Comparator.naturalOrder());
         String id=normalizedDigest.value().substring(0,16)+"-"+request.rulePack().digest().value().substring(0,16);
         return new PrecheckResult(1,id,request.tenantId(),request.taskId(),request.operation(),request.agentId(),request.inputSnapshot(),original,normalizedDigest,request.rulePack(),findings,evidence,risk,projection,route,decision,now);
