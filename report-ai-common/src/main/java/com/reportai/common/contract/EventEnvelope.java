@@ -17,6 +17,7 @@ public record EventEnvelope<T>(int schemaVersion, EventId eventId, String eventT
         eventId = Objects.requireNonNull(eventId, "eventId");
         eventType = IdentifierRules.requireVersion(eventType, "eventType");
         tenantId = Objects.requireNonNull(tenantId, "tenantId");
+        aggregateId = Objects.requireNonNull(aggregateId, "aggregateId");
         if (aggregateVersion < 0 || eventSequence < 0) {
             throw new IllegalArgumentException("event versions must not be negative");
         }

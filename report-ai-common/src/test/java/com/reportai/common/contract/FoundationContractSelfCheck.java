@@ -60,6 +60,9 @@ public final class FoundationContractSelfCheck {
                 command.tenantId(), command.aggregateId(), 1, 0, command.commandId(), command.correlationId(),
                 trace, NOW, command.payload(), command.payloadDigest(), Map.of());
         check(event.eventSequence() == 0, "unassigned event sequence");
+        expectFailure(() -> new EventEnvelope<>(1, new EventId("event-2"), "TASK_CREATED",
+                command.tenantId(), null, 1, 0, command.commandId(), command.correlationId(),
+                trace, NOW, command.payload(), command.payloadDigest(), Map.of()));
         ErrorDetail error = new ErrorDetail("PYTHON_INPUT_MISSING", FailureClass.INPUT_MISSING,
                 false, "required input is missing", "provide the declared dataset", Map.of());
         check(!error.retryable(), "input errors are not retryable by default");
@@ -85,7 +88,7 @@ public final class FoundationContractSelfCheck {
         try {
             action.run();
             throw new AssertionError("expected validation failure");
-        } catch (IllegalArgumentException expected) {
+        } catch (IllegalArgumentException | NullPointerException expected) {
             // expected
         }
     }

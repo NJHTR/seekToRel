@@ -17,6 +17,7 @@ public record CommandEnvelope<T>(int schemaVersion, CommandId commandId, String 
         commandId = Objects.requireNonNull(commandId, "commandId");
         commandType = IdentifierRules.requireVersion(commandType, "commandType");
         tenantId = Objects.requireNonNull(tenantId, "tenantId");
+        aggregateId = Objects.requireNonNull(aggregateId, "aggregateId");
         idempotencyKey = Objects.requireNonNull(idempotencyKey, "idempotencyKey");
         correlationId = Objects.requireNonNull(correlationId, "correlationId");
         trace = Objects.requireNonNull(trace, "trace");
