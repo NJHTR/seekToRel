@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres@sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${REPORT_AI_DB_NAME:-report_ai}
+      POSTGRES_USER: ${REPORT_AI_DB_USERNAME:-report_ai}
+      POSTGRES_PASSWORD: ${REPORT_AI_DB_PASSWORD:?set REPORT_AI_DB_PASSWORD before starting postgres}
+    ports:
+      - "${REPORT_AI_DB_PORT:-5432}:5432"
+    volumes:
+      - report-ai-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  report-ai-postgres-data:

@@ -1,0 +1,88 @@
+@import "../Page/Page.scss";
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: url("../../resources/images/cursor.png"), auto;
+    border: 1px solid rgba(255, 255, 255, 0.335);
+    border-radius: 8px;
+    z-index: 20 !important;
+    background-color: rgba(0, 0, 0, 0.19);
+    position: absolute;
+    width: 200px;
+    padding: 11px 4px 8px 7px;
+    left: 0;
+    top: 30px;
+    box-shadow: 0px 0px 3.35px black;
+
+    .divider {
+        margin: -2px 3px 1px 0px;
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.335);
+    }
+
+    .dropdown-item {
+        padding: 0px 8px;
+        font-size: 14.6px;
+        font-family: "SF Regular";
+        transform: scaleY(1.03);
+        border: none;
+        border-radius: 4px;
+    }
+}
+
+.dd-logo {
+    left: -10px;
+}
+
+.dd-finder {
+    left: -6px;
+}
+
+.dd-logo,
+.dd-finder,
+.dd-file,
+.dd-edit,
+.dd-view {
+    width: 257px;
+}
+
+.dd-go,
+.dd-help {
+    width: 255px;
+}
+
+.dd-windows {
+    width: 292px;
+}
+
+.dropdown-menu::after {
+    backdrop-filter: blur(25px);
+    content: "";
+    display: block;
+    height: 100%;
+    width: 100%;
+    z-index: -1 !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.selectable {
+
+    &:hover {
+        background-color: $systemColor;
+        color: black !important;
+        cursor: url("../../resources/images/pointing.png"), auto;
+    }
+}
+
+.unselectable {
+    cursor: url("../../resources/images/cursor.png"), auto;
+}

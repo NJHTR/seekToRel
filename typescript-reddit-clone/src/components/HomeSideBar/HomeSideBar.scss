@@ -1,0 +1,322 @@
+// Imports
+@import "../../styles/global/variables";
+
+// CSS
+.homesidebar {
+    height: 100%;
+    width: 312px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+}
+
+.topBannerContainer {
+    position: relative;
+    height: 80px;
+    background-color: white;
+    width: 312px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-radius: 4px;
+
+    &::before {
+        background: linear-gradient(0deg,rgba(0,0,0,.7) 0,transparent);
+        content: "";
+        height: 80px;
+        position: absolute;
+        width: 100%;
+    }
+
+    .topBanner {
+        width: 310px;
+        height: 80px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        z-index: 5;
+    }
+
+    h3 {
+        position: absolute;
+        left: 5%;
+        font-size: 16px;
+        font-family: "IBM Light";
+        color: white;
+        bottom: 8px;
+        transform: scaleX(1.04);
+        transform: scaleY(0.95);
+    }
+}
+
+.subredditList {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+
+    .suggestions {
+        display: flex;
+        gap: 0.7em;
+        padding-left: 12px;
+        margin-bottom: 16px;
+
+        .suggestion {
+            padding: 4px 8px 5px 8px;
+            background: #F6F7F8;
+            border: none;
+            border-radius: 9999px;
+            height: 26px;
+            font-family: "Noto Sans Bold";
+            letter-spacing: -0.02em;
+            box-sizing: border-box;
+            color: #0079d3;
+            font-size: 12px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #e3edf6;
+            }
+
+            &:active {
+                background-color: #bbd9f0;
+            }
+        }
+    }
+
+    .viewAll {
+        align-self: center;
+        margin-top: 12px;
+        font-family: "Noto Sans Bold";
+        color: white;
+        background-color: #0079d3;
+        border: none;
+        font-size: 14px;
+        padding: 6px 115px 7px 115px;
+        border-radius: 9999px;
+        margin-bottom: 16px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #1484d7;
+        }
+
+        &:active {
+            background-color: #3d99de !important;
+        }
+    }
+
+    .subInList {
+        display: flex;
+        width: 100%;
+        box-sizing: border-box;
+        align-items: center;
+        padding-top: 9px;
+        padding-bottom: 9px;
+        background-color: white;
+        cursor: pointer;
+
+        .num,
+        .top,
+        .logo,
+        .title {
+            pointer-events: none;
+        }
+
+        .num {
+            font-size: 14px;
+            font-family: "IBM Light";
+            padding-right: 12px;
+            color: #1c1c1c;
+        }
+
+        .top {
+            height: 7px;
+            align-self: center;
+            padding-right: 14px;
+        }
+
+        .logo {
+            height: 30px;
+            width: 30px;
+            margin-right: 9px;
+        }
+
+        .title {
+            font-size: 14px;
+            font-family: "IBM Light";
+            color: #1c1c1c;
+            width: 135px;
+        }
+
+        .join {
+            height: 24px;
+            box-sizing: border-box;
+            border-radius: 9999px;
+            font-family: "Noto Sans Bold";
+            color: white;
+            letter-spacing: -0.02em;
+            cursor: pointer;
+        }
+
+        .leave {
+            height: 24px;
+            box-sizing: border-box;
+            border-radius: 9999px;
+            font-family: "Noto Sans Bold";
+            color: white;
+            letter-spacing: -0.02em;
+            cursor: pointer;
+        }
+    }
+}
+
+.premiumContainer {
+    width: 312px;
+    box-sizing: border-box;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+    .premium-top {
+        padding: 8px 20px 8px 11px;
+        display: flex;
+        gap: 13px;
+
+        .premiumIcon {
+            height: 23px;
+            align-self: center;
+            padding-bottom: 3px;
+        }
+
+        .slogan {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+
+            .headline {
+                font-family: "IBM Regular";
+                font-size: 12px;
+                color: #1A1A1B;
+            }
+    
+            .content {
+                font-family: "IBM Light";
+                font-size: 12px;
+                color: #1A1A1B;
+            }
+        }
+    }
+
+    .premium-button {
+        margin: 2px 12px;
+        height: 32px;
+        width: 92.15%;
+        border: 1px solid transparent;
+        background-color: #ff4500;
+        color: white;
+        font-family: "Noto Sans Bold";
+        font-size: 14px;
+        border-radius: 9999px;
+        padding-bottom: 2px;
+        padding-right: 2px;
+        margin-bottom: 8px;
+        letter-spacing: -0.0125em;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #ff5414;
+        }
+
+        &:active {
+            background-color: #ff723d;
+        }
+    }
+}
+
+.homeContainer {
+    display: flex;
+    flex-direction: column;
+    width: 312px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    position: relative;
+
+    .home-banner {
+
+    }
+
+    .home-avatar {
+        position: absolute;
+        width: 42px;
+        height: 68px;
+        top: 21px;
+        left: 12px;
+    }
+
+    .home-headline {
+        margin-top: 26px;
+        margin-left: 62px;
+        font-family: "IBM Regular";
+        color: #1c1c1c;
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+
+    .home-content {
+        margin-left: 11px;
+        font-size: 0.925em;
+        line-height: 1.425;
+        margin-right: 8px;
+        color: #1c1c1c;
+        font-family: "IBM Light";
+        margin-bottom: 13px;
+    }
+
+    .home-create {
+        border: 1px solid transparent;
+        border-radius: 9999px;
+        align-self: center;
+        height: 32px;
+        width: 92.15%;
+        margin-bottom: 12px;
+        font-size: 14px;
+        font-family: "Noto Sans Bold";
+        padding-bottom: 1px;
+        padding-right: 1px;
+        cursor: pointer;
+    }
+
+    .create-post {
+        background-color: #0079d3;
+        color: white;
+
+        &:hover {
+            background-color: #1484d7;
+        }
+
+        &:active {
+            background-color: #3d99de;
+        }
+    }
+
+    .create-community {
+        color: #0079d3;
+        background-color: white;
+        border: 1px solid #0079d3;
+
+        &:hover {
+            background-color: #f5fafd;
+        }
+
+        &:active {
+            background-color: #d7eaf8;
+        }
+    }
+}

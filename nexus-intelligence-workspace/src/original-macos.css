@@ -1,0 +1,173 @@
+.original-macos-shell {
+  cursor: url('/mac-icons/pointing.png'), auto;
+  background-position: center;
+  background-size: cover;
+  transition: background-image 300ms ease;
+}
+
+.original-menu-bar {
+  height: 28px;
+  padding: 0 16px;
+  color: #fff;
+  background: rgba(18, 18, 22, 0.52);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(24px) saturate(1.35);
+  font-family: 'SF Medium', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.original-menu-bar .mac-menu-left { gap: 1px; }
+.original-menu-bar .mac-menu-right { gap: 13px; }
+.original-menu-bar .mac-menu-button,
+.original-menu-bar .mac-menu-label { padding: 4px 8px; font-size: 13px; }
+.original-menu-bar .mac-active-app { margin: 0 8px 0 4px; font-size: 13px; }
+.original-menu-bar .mac-apple-button { display: grid; width: 28px; place-items: center; padding: 2px 5px; }
+.original-menu-bar .mac-apple-button img { width: 17px; height: 18px; object-fit: contain; filter: brightness(0) invert(1); }
+.original-menu-bar .mac-menu-popover { top: 28px; background: rgba(41, 41, 45, 0.88); color: #fff; border-color: rgba(255, 255, 255, 0.2); }
+.original-menu-bar .mac-menu-popover button:hover { background: var(--mac-accent, #0a85ff); }
+.original-menu-bar .mac-menu-popover img { width: 20px; height: 20px; object-fit: contain; border-radius: 5px; }
+
+.original-control-center {
+  position: absolute;
+  top: 34px;
+  right: 13px;
+  width: 300px;
+  padding: 12px;
+  color: #fff;
+  background: rgba(26, 27, 32, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 13px;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(30px) saturate(1.4);
+}
+.control-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.control-toggles button, .control-wallpaper { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 9px; color: #fff; background: #2f3541; border: 0; border-radius: 9px; text-align: left; cursor: pointer; }
+.control-toggles button.active svg { box-sizing: content-box; padding: 6px; color: #111; background: #fff; border-radius: 50%; }
+.control-toggles span, .control-wallpaper span { display: flex; min-width: 0; flex: 1; flex-direction: column; }
+.control-toggles strong, .control-wallpaper strong { font-size: 11px; }
+.control-toggles small, .control-wallpaper small { margin-top: 1px; color: #c6c7cc; font-size: 9px; }
+.control-wallpaper { width: 100%; margin-top: 9px; background: rgba(255, 255, 255, 0.09); }
+.control-wallpaper img { width: 52px; height: 35px; object-fit: cover; border-radius: 5px; }
+
+.original-desktop-stage { inset: 28px 0 0; }
+.original-desktop-welcome { left: 36px; bottom: 112px; }
+.original-desktop-welcome strong { font-family: 'SF Light', -apple-system, sans-serif; font-size: 28px; }
+
+.original-app-window {
+  max-height: calc(100vh - 128px);
+  color: #fff;
+  background: #1e1f23;
+  border: 1px solid #3f3f47;
+  border-radius: 5px;
+  box-shadow: 0 8px 15px rgba(5, 5, 5, 0.78), 0 38px 72px rgba(5, 5, 5, 0.76);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.original-app-window.desktop-app-window-maximized { inset: 7px 8px 91px; }
+.original-window-titlebar {
+  flex-basis: 43px;
+  height: 43px;
+  color: #f7f7f7;
+  background: linear-gradient(180deg, #353537 0%, #2b2a2f 100%);
+  border-top: 1px solid #696971;
+  border-bottom: 1px solid #141318;
+  border-radius: 5px 5px 0 0;
+}
+.original-window-titlebar .desktop-window-title { font-family: 'SF Semibold', -apple-system, sans-serif; font-size: 12px; }
+.original-window-titlebar .desktop-window-actions button { width: 38px; height: 25px; background: #5b5c60; border-top: 1px solid #747579; }
+.original-window-titlebar .desktop-window-actions button:hover { background: #67686b; }
+.original-window-titlebar .desktop-window-actions img { width: 18px; height: 18px; object-fit: contain; }
+
+.original-window-titlebar .traffic-lights { gap: 9px; }
+.original-window-titlebar .traffic { display: grid; width: 13px; height: 13px; place-items: center; overflow: hidden; }
+.original-window-titlebar .traffic img { width: 9px; height: 9px; opacity: 0; object-fit: contain; transition: opacity 100ms ease; }
+.original-window-titlebar .traffic-lights:hover .traffic img { opacity: 1; }
+.original-window-titlebar .traffic-red { background: rgb(255, 69, 58); }
+.original-window-titlebar .traffic-yellow { background: rgb(255, 214, 10); }
+.original-window-titlebar .traffic-green { background: rgb(48, 209, 88); }
+.original-app-window .desktop-window-content { background: #f7f7f8; }
+.desktop-app-photos .desktop-window-content,
+.desktop-app-weather .desktop-window-content { background: #1e1f23; }
+
+.original-mac-dock {
+  min-height: 72px;
+  height: 72px;
+  gap: 1px;
+  padding: 0 7px;
+  overflow: visible;
+  background: rgba(28, 28, 31, 0.45);
+  border: 1px solid rgba(133, 132, 138, 0.72);
+  border-radius: 18px;
+  box-shadow: 0 0 4px #000;
+  backdrop-filter: blur(20px);
+}
+.dock-entry { position: relative; display: flex; height: 70px; align-items: flex-end; }
+.dock-entry-divided::before { position: absolute; bottom: 5px; left: -3px; width: 1px; height: 59px; content: ''; background: rgba(133, 132, 138, 0.78); }
+.original-dock-item {
+  width: 61px;
+  height: 66px;
+  align-items: flex-end;
+  padding-bottom: 5px;
+  transform-origin: bottom center;
+  transition: transform 175ms ease, margin 175ms ease;
+}
+.original-dock-item.hovered { margin-bottom: 28px; transform: scale(1.45); }
+.original-dock-item.distance-1 { margin-bottom: 14px; transform: scale(1.18); }
+.original-dock-item.distance-2 { margin-bottom: 6px; transform: scale(1.07); }
+.original-dock-item > img,
+.original-dock-item > .report-ai-icon,
+.original-dock-item > .notes-app-icon,
+.original-dock-item > .store-app-icon,
+.original-dock-item > .reddit-app-icon,
+.original-dock-item > .mac-trash-icon { width: 57px; height: 57px; border-radius: 13px; object-fit: contain; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45)); }
+.original-dock-item .mac-dock-tooltip { top: -30px; }
+.original-dock-item.hovered .mac-dock-tooltip { opacity: 1; }
+.original-dock-item .mac-dock-dot { bottom: 0; }
+
+.wallpaper-gallery { height: 100%; overflow: auto; color: #fff; background: #1e1f23; }
+.wallpaper-preview { display: flex; max-width: 610px; flex-direction: column; margin: 0 auto; padding: 28px 30px 10px; }
+.wallpaper-preview > img { width: 100%; aspect-ratio: 1.63; object-fit: cover; border-radius: 13px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+.wallpaper-preview > div { display: flex; flex-direction: column; margin-top: 17px; }
+.wallpaper-preview strong { font: 26px/32px 'SF Light', -apple-system, sans-serif; }
+.wallpaper-preview span { margin-top: 2px; color: #b2b2b2; font-size: 14px; }
+.wallpaper-preview label { display: flex; align-items: center; gap: 11px; margin-top: 20px; font-size: 13px; }
+.wallpaper-library { padding: 25px 23px 28px; }
+.wallpaper-library h2 { margin: 0 0 15px; font: 24px/30px 'SF Light', -apple-system, sans-serif; }
+.wallpaper-library-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 9px; }
+.wallpaper-library-grid button { display: flex; min-width: 0; flex-direction: column; gap: 6px; padding: 3px; color: #fff; background: transparent; border: 3px solid transparent; border-radius: 13px; cursor: pointer; }
+.wallpaper-library-grid button.selected, .wallpaper-library-grid button:hover { border-color: var(--mac-accent, #0a85ff); }
+.wallpaper-library-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+.wallpaper-library-grid span { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+
+.desktop-context-menu { position: fixed; z-index: 400; width: 218px; padding: 5px; color: #fff; background: rgba(43, 43, 47, 0.88); border: 1px solid rgba(255, 255, 255, 0.19); border-radius: 7px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35); backdrop-filter: blur(24px); }
+.desktop-context-menu button { display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 6px 9px; color: inherit; background: transparent; border: 0; border-radius: 4px; text-align: left; font-size: 12px; cursor: pointer; }
+.desktop-context-menu button:hover { background: var(--mac-accent, #0a85ff); }
+.desktop-context-menu div { height: 1px; margin: 4px; background: rgba(255, 255, 255, 0.15); }
+
+.mac-boot-screen { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; flex-direction: column; background: #000; animation: bootFade 350ms ease 1.75s forwards; }
+.mac-boot-screen > img { width: 100px; height: 104px; object-fit: contain; }
+.mac-boot-screen > div { width: 150px; height: 4px; margin-top: 36px; overflow: hidden; background: #424242; border-radius: 999px; }
+.mac-boot-screen > div span { display: block; width: 100%; height: 100%; background: #fff; border-radius: inherit; animation: bootProgress 1.65s ease-in-out forwards; transform-origin: left; }
+@keyframes bootProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes bootFade { to { opacity: 0; visibility: hidden; } }
+
+@media (max-width: 900px) {
+  .original-menu-bar .mac-menu-label { display: none; }
+  .original-mac-dock { max-width: calc(100vw - 12px); height: 63px; min-height: 63px; }
+  .dock-entry { height: 62px; }
+  .original-dock-item { width: 49px; height: 58px; }
+  .original-dock-item > img, .original-dock-item > .report-ai-icon, .original-dock-item > .notes-app-icon, .original-dock-item > .store-app-icon, .original-dock-item > .reddit-app-icon, .original-dock-item > .mac-trash-icon { width: 46px; height: 46px; border-radius: 11px; }
+  .original-dock-item.hovered { margin-bottom: 18px; transform: scale(1.28); }
+  .original-dock-item.distance-1 { margin-bottom: 9px; transform: scale(1.1); }
+  .original-app-window, .original-app-window.desktop-app-window-maximized { inset: 7px 7px 78px !important; width: auto !important; height: auto !important; max-height: none; }
+  .wallpaper-library-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .original-menu-bar .mac-active-app { display: none; }
+  .original-menu-bar .mac-menu-right > span, .original-menu-bar .mac-menu-right > svg { display: none; }
+  .original-mac-dock { overflow-x: auto; overflow-y: visible; justify-content: flex-start; }
+  .original-dock-item { width: 45px; }
+  .original-dock-item > img, .original-dock-item > .report-ai-icon, .original-dock-item > .notes-app-icon, .original-dock-item > .store-app-icon, .original-dock-item > .reddit-app-icon, .original-dock-item > .mac-trash-icon { width: 42px; height: 42px; }
+  .wallpaper-library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wallpaper-preview { padding: 18px; }
+}

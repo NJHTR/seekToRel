@@ -1,0 +1,24 @@
+spring:
+  config:
+    import:
+      - optional:file:.env.local[.properties]
+      - optional:file:.env.auth.local[.properties]
+  datasource:
+    url: ${REPORT_AI_DB_URL:jdbc:postgresql://127.0.0.1:15432/report_ai}
+    username: ${REPORT_AI_DB_USERNAME:report_ai}
+    password: ${REPORT_AI_DB_PASSWORD:}
+
+report-ai:
+  auth:
+    local:
+      enabled: ${REPORT_AI_AUTH_LOCAL_ENABLED:true}
+      signing-secret: ${REPORT_AI_AUTH_LOCAL_SIGNING_SECRET:}
+  object-storage:
+    enabled: ${REPORT_AI_OBJECT_STORAGE_ENABLED:true}
+    endpoint: ${REPORT_AI_OBJECT_STORAGE_ENDPOINT:http://127.0.0.1:19000}
+    bucket: ${REPORT_AI_OBJECT_STORAGE_BUCKET:report-ai}
+    region: ${REPORT_AI_OBJECT_STORAGE_REGION:us-east-1}
+    access-key: ${REPORT_AI_OBJECT_STORAGE_ACCESS_KEY:report_ai_minio}
+    secret-key: ${REPORT_AI_OBJECT_STORAGE_SECRET_KEY:}
+    path-style: ${REPORT_AI_OBJECT_STORAGE_PATH_STYLE:true}
+    create-bucket-if-missing: ${REPORT_AI_OBJECT_STORAGE_CREATE_BUCKET_IF_MISSING:true}

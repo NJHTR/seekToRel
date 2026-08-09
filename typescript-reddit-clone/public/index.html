@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="image_src" href="https://raw.githubusercontent.com/gianlucajahn/typescript-reddit-clone/main/src/resources/images/banner.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="A feature-rich reddit clone built with Typescript, React and SCSS/SASS. Features subreddits, posts, nested comments, profiles, post creation, achievements and much more."
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>TypeScript Reddit Clone</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <script>
+      document.body.addEventListener("click", function() {
+        if (document.getElementById('loginmodal') === null) {
+          document.body.style.overflow = "";
+          document.body.style.height = "";
+        } else if (document.getElementById('loginmodal') !== null) {
+          document.body.style.overflow = "hidden";
+          document.body.style.height = "100%";
+        }
+      })
+    </script>
+  </body>
+</html>

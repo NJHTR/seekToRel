@@ -1,0 +1,10 @@
+# Direct scientific capabilities required by the first Nexus experiment profile.
+# The build pipeline resolves transitive dependencies and writes requirements.lock
+# with --require-hashes; this file is not consumed by the runtime directly.
+numpy==1.26.4
+Pillow==10.4.0
+matplotlib==3.9.2
+torch==2.5.1+cpu
+torchvision==0.20.1+cpu
+PyYAML==6.0.2
+setuptools==83.0.0

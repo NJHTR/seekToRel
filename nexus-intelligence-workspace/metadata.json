@@ -1,0 +1,6 @@
+{
+  "name": "Mac for Web",
+  "description": "A macOS-style web desktop hosting Nexus, a traceable AI workspace for experiment reports, alongside portfolio applications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

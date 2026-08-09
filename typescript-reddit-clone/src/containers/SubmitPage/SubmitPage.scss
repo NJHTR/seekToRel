@@ -1,0 +1,850 @@
+// CSS
+.submit-page {
+    background-color: #dae0e6;
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    padding-top: 87px;
+
+    .left {
+        display: flex;
+        flex-direction: column;
+        margin-left: 422px;
+        width: 740px;
+        box-sizing: border-box;
+
+        .divider {
+            width: inherit;
+            padding-left: 0;
+            margin-left: 0;
+            margin-top: 6px;
+            margin-bottom: 16px;
+        }
+
+        .head {
+            display: flex;
+            justify-content: space-between;
+
+            .head-text {
+                font-size: 18px;
+                color: #1c1c1c;
+                font-family: "IBM Regular";
+                margin-left: 4px;
+            }
+
+            .drafts {
+                letter-spacing: .5px;
+                line-height: 24px;
+                font-size: 12px;
+                display: flex;
+                gap: 5px;
+                margin-top: 3px;
+                font-family: "Noto Sans Bold";
+                background-color: transparent;
+                border: 1px solid transparent;
+                cursor: pointer;
+                padding: 2px 14px;
+                border-radius: 9999px;
+                margin-right: 6px;
+
+                &:hover {
+                    background-color: #cad0d6;
+                }
+
+                &:active {
+                    background-color: #acb0b5;
+                }
+
+                .draft-num {
+                    margin-top: 3px;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #7e8183;
+                    color: white;
+                    border: 1px solid #7e8183;
+                    border-radius: 2px;
+                    display: flex;
+                    height: 16px;
+                    width: 11px;
+                    font-family: "Noto Sans";
+                }
+            }
+        }
+
+        .community-selector {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border: 1px solid #edeff1;
+            padding: 7px 7px 8px 8px;
+            align-items: center;
+            position: relative;
+            justify-content: space-between;
+            border-radius: 4px;
+            width: 300px;
+
+            .top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 300px;
+
+                .start {
+                    display: flex;
+                    align-items: center;
+                    margin-left: 8px;
+    
+                    .community-icon {
+                        height: 23px;
+                        margin-right: 7px;
+                        cursor: pointer;
+                    }
+        
+                    .community-title {
+                        font-size: 14px;
+                        color: #222222;
+                        font-family: "IBM Regular";
+                        cursor: text;
+                    }
+                }
+    
+                .expand {
+                    margin-right: 15px;
+                    cursor: pointer;
+                }
+            }
+
+            .dropdown {
+                width: 300px;
+                box-sizing: border-box;
+                position: absolute;
+                z-index: 11;
+                top: 99%;
+                left: -1px;
+                align-items: flex-start;
+                background-color: white;
+                display: flex;
+                flex-direction: column;
+                border: 1px solid #edeff1;
+                max-height: 402px;
+                overflow: scroll;
+                overflow-x: hidden;
+                box-shadow: 0px 3px 5px #edeff1;
+
+                h4 {
+                    font-size: 0.78em;
+                    padding-top: 8px;
+                    padding-left: 8px;
+                    margin-left: 8px;
+                    margin-top: 6px;
+                    color: #878a8c;
+                    font-family: "Noto Sans Bold";
+                    cursor: text;
+                }
+
+                .profile {
+                    padding-top: 5px;
+                    display: flex;
+                    align-items: center;
+                    padding-bottom: 9px;
+                    width: 300px;
+                    border-bottom: 1px solid #edeff1;
+                    gap: 7px;
+
+                    img {
+                        height: 41px;
+                        padding-left: 7px;
+                        cursor: pointer;
+                    }
+
+                    h3 {
+                        font-size: 13px;
+                        margin-top: 8px;
+                        font-family: "Noto Sans";
+                        color: #1c1c1c;
+                        cursor: pointer;
+                    }
+                }
+
+                #crypto {
+                    padding-bottom: 16px;
+                }
+
+                .sub-container {
+                    display: flex;
+                    gap: 8px;
+                    width: 300px;
+                    padding-top: 19px;
+                    justify-content: flex-start;
+                    cursor: pointer;
+
+                    .sub-icon {
+                        height: 33px;
+                        margin-left: 9px;
+                        margin-right: 1px;
+                        padding: 0;
+                    }
+
+                    #league {
+                        margin-left: 11px;
+                    }
+
+                    .sub-info {
+                        display: flex;
+                        justify-content: flex-start;
+                        flex-direction: column;
+                        align-items: flex-start;
+
+                        .sub-title {
+                            font-family: "Noto Sans";
+                            font-size: 13px;
+                        }
+    
+                        .sub-members {
+                            font-family: "Noto Sans";
+                            margin: 0;
+                            padding: 0;
+                            cursor: pointer;
+                        }
+                    }
+                    }
+            }
+        }
+
+        .post-options {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            width: 738px;
+            background-color: white;
+            border: 1px solid transparent;
+            border-radius: 4px;
+
+            .divider {
+                margin: 6px 16px 0 16px;
+                width: 708px;
+            }
+
+            .title-container {
+                position: relative;
+                padding: 15px 15px 0px 15px;
+                margin-bottom: 7px;
+
+                .title {
+                    min-height: 39px;
+                    min-width: 708px;
+                    max-width: 708px;
+                    width: 708px;
+                    padding-right: 80px;
+                    box-sizing: border-box;
+                    border: 1px solid #edeff1;
+                    padding-left: 16px;
+                    letter-spacing: 0.02em;
+                    border-radius: 4px;
+                    color: #1c1c1c;
+                    outline: none;
+
+                    &:active {
+                        border: 1px solid #1c1c1c;
+                    }
+
+                    &:focus {
+                        border: 1px solid #1c1c1c;
+                    }
+    
+                    ::placeholder {
+                        color: #878a8c;
+                    }
+                }
+
+                .counter {
+                    position: absolute;
+                    right: 29px;
+                    top: 27px;
+                    font-family: "Noto Sans Bold";
+                    font-size: 11px;
+                    transform: scaleY(0.95);
+                    color: #878a8c;
+                }
+            }
+
+            .post-types {
+                display: flex;
+                height: 50px;
+                border-bottom: 1px solid #edeff1;
+
+                .post-type {
+                    display: flex;
+                    padding-top: 12px;
+                    padding-bottom: 12px;
+                    justify-content: center;
+                    align-content: center;
+                    gap: 8px;
+                    background-color: white;
+                    cursor: pointer;
+
+                    .greyed-out {
+                        color: #c3c4c5;
+                    }
+
+                    .text {
+                        height: 20px;
+                        margin-top: 2px;
+                    }
+
+                    .image {
+                        height: 20px;
+                        margin-top: 2px;
+                    }
+
+                    .link {
+                        height: 23px;
+                        margin-top: 1px;
+                        margin-right: 2px;
+                    }
+
+                    .poll {
+                        height: 21px;
+                        margin-top: 3px;
+                    }
+
+                    .talk {
+                        height: 22px;
+                        margin-top: 2px;
+                    }
+
+                    h2 {
+                        margin-top: 2px;
+                        font-size: 15px;
+                        font-family: "IBM";
+                    }
+                }
+
+                .not-allowed {
+                    cursor: not-allowed;
+                }
+
+                .hoverable {
+
+                    &:hover {
+                        background-color: #f2f8fd;
+                    }
+                }
+
+                .post {
+                    padding-left: 42px;
+                    padding-right: 41px;
+                    border-top-left-radius: 4px;
+                    border-right: 1px solid #edeff1;
+                }
+
+                .img {
+                    padding-left: 15px;
+                    padding-right: 14px;
+                    border-right: 1px solid #edeff1;
+                }
+
+                .links {
+                    padding-left: 43px;
+                    padding-right: 43px;
+                    border-right: 1px solid #edeff1;
+                }
+
+                .polls {
+                    padding-left: 43px;
+                    padding-right: 43px;
+                    border-right: 1px solid #edeff1;
+                }
+
+                .talks {
+                    padding-left: 43px;
+                    padding-right: 44px;
+                    border-top-right-radius: 4px;
+                }
+            }
+        }
+    }
+
+    .right {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-left: 23px;
+        margin-top: 22px;
+        width: 314px;
+
+        .rediquette-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            border-radius: 4px;
+            background-color: white;
+            border: 1px solid #edeff1;
+
+            .rq-header {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+
+                .line {
+                    width: 288px;
+                    margin-left: 10px;
+                    margin-top: 7px;
+                }
+
+                .flex {
+                    display: flex;
+                    align-items: center;
+                    gap: 9px;
+                    padding: 13px 12px 0px 12px;
+
+                    .rq-icon {
+                        height: 37px;
+                    }
+
+                    h3 {
+                        font-size: 16px;
+                        margin-top: 6px;
+                        font-family: "IBM Regular";
+                        color: #1c1c1c;
+                        cursor: text;
+                    }
+                }
+            }
+
+            .rq-rule {
+                padding-left: 17px;
+
+                h4 {
+                    font-size: 14px;
+                    margin-top: -3px;
+                    font-family: "IBM Regular";
+                    color: #1c1c1c;
+                    cursor: text;
+                }
+
+                .lastline {
+                    margin-bottom: 11px;
+                }
+            }
+        }
+    }
+}
+
+.button-bar-top {
+    background-color: #f6f7f8;
+    padding-left: 7px;
+    box-sizing: border-box;
+    border: 1px solid #edeff1;
+    border-radius: 4px;
+    padding-top: 7px;
+    border-bottom: none;
+    width: 706px;
+    min-width: 706px;
+    max-width: 706px;
+    padding-bottom: 3px;
+    justify-content: space-between;
+    display: flex;
+    gap: 1px;
+
+    .line {
+        width: 1px;
+        height: 30px;
+        left: 702px;
+        position: absolute;
+        background-color: #edeff1;
+    }
+
+    .text-settings {
+        padding: 3px 6px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background-color: transparent;
+        cursor: pointer;
+        position: relative;
+
+        &:hover {
+            background-color: #d0d1d2;
+        }
+
+        &:hover::after {
+            position: absolute;
+            margin: 0 auto;
+            left: -12px;
+            bottom: 36px;
+            padding: 5px 10px 5px 10px;
+            border-radius: 4px;
+            background-color: black;
+            color: white;
+            content: attr(aria-label);
+        }
+
+        &:active {
+            background-color: #b2b2b3;
+        }
+
+        .setting-icon {
+            height: 21px;
+        }
+    }
+
+    .markdown {
+        margin-left: 9px;
+        align-self: center;
+        cursor: pointer;
+        height: 24px;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        padding-bottom: 3px;
+        border-radius: 9999px;
+        padding-left: 7px;
+        padding-right: 7px;
+        margin-right: 10px;
+
+        p {
+            font-size: 12px;
+            font-family: "Noto Sans Bold";
+        }
+    }
+
+    .btn {
+        background-color: transparent;
+
+        &:hover {
+            background-color: #d0d1d2;
+        }
+
+        &:active {
+            background-color: #b2b2b3;
+        }
+
+        * {
+            pointer-events: none;
+        }
+    }
+
+    .end {
+        height: 32px;
+        align-items: center;
+        display: flex;
+    }
+
+    #markdown {
+        background-color: transparent;
+
+        &:hover {
+            background-color: #d0d1d2;
+        }
+
+        &:active {
+            background-color: #b2b2b3;
+        }
+    }
+
+    .submit {
+        height: 24px;
+        padding-left: 19px;
+        padding-right: 21px;
+        margin-bottom: 1px;
+        margin-right: 8px;
+        cursor: not-allowed;
+        border: none;
+
+        &:hover {
+            box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.125);
+        }
+
+        &:active {
+            box-shadow: inset 0 0 100px 100px rgba(0, 0, 0, 0.125);
+        }
+    }
+
+    .spoiler {
+        margin-right: 15px;
+    }
+}
+
+.src-field {
+    width: 706px;
+    max-width: 706px;
+    min-width: 706px;
+    min-height: 139px;
+    box-sizing: border-box;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border: 1px solid #edeff1;
+    border-top: none;
+    font-family: "Noto Sans Regular";
+    font-size: 14px;
+    color: #1c1c1c;
+    padding-top: 8px;
+    outline: none;
+    padding-left: 15px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    padding-right: 20px;
+}
+
+.src-container {
+    display: flex;
+    flex-direction: column;
+    margin-left: 15px;
+    width: 708px;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+.flair-container {
+    display: flex;
+    gap: 4px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    margin-left: 15px;
+
+    .greyed-out {
+        border: 1px solid #c4c4c4 !important;
+        cursor: not-allowed !important;
+        background-color: white;
+    }
+
+    .flair-btn {
+        padding: 4px 16px;
+        transition: 0.2s all;
+        gap: 7px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        .flair-icon {
+            height: 22px;
+        }
+        
+        h3 {
+            font-family: "Noto Sans Bold";
+            font-size: 14px;
+            margin-bottom: 1px;
+        }
+
+        .grey {
+            color: #c4c4c4 !important;
+        }
+
+        .expand {
+            margin-left: 3px;
+        }
+    }
+}
+
+.check-icon {
+    width: 19px;
+}
+
+.submit-container {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+    padding: 16px 15px;
+
+    .submit-btn {
+        padding: 4px 16px;
+        transition: 0.2s all;
+        gap: 7px;
+        height: 32px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+
+        .loading {
+            height: 16px;
+        }
+    }
+
+    .save-draft {
+        background-color: white;
+        transition: 0.2s all;
+    }
+}
+
+.footer-container {
+    background-color: #f6f7f8;
+    height: 86px;
+    width: 736px;
+    border-top: 1px solid #edeff1 !important;
+    border: 1px solid transparent;
+    border-radius: 4px;
+
+    .notification-container {
+        padding: 17px 16px 8px 16px;
+        display: flex;
+        gap: 9px;
+
+        h4 {
+            font-size: 14px;
+            font-family: "IBM Regular";
+            color: #1c1c1c;
+            cursor: pointer;
+        }
+
+        input {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+    }
+
+    .connection-container {
+        display: flex;
+        gap: 7px;
+        padding-left: 14px;
+        margin-top: 5px;
+
+        h4 {
+            font-size: 14px;
+            font-family: "IBM Regular";
+            color: #1c1c1c;
+            color: #0079d3;
+            cursor: pointer;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .info {
+            height: 20px;
+            cursor: default;
+        }
+    }
+}
+
+.extra {
+    margin-top: 6px;
+    font-size: 12px;
+    font-family: "IBM Regular";
+    color: #7c7c7c;
+    margin-right: 60px;
+    margin-bottom: 60px;
+
+    span {
+        color: #0079d3;
+        font-family: "IBM";
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.img-submit {
+    border: 1px solid #edeff1;
+    margin: 0px 15px;
+    border-radius: 4px;
+    display: flex;
+    gap: 10px;
+
+    justify-content: center;
+    align-items: center;
+    padding: 120px 140px;
+
+    h3 {
+        font-size: 16px;
+        font-family: "IBM Light";
+        color: #0079d3;
+        cursor: text;
+    }
+
+    label {
+        margin-top: 3px;
+        border: 1px solid #0079d3;
+        border-radius: 9999px;
+        padding: 6px 14px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        font-family: "Noto Sans Bold";
+        color: #0079d3;
+        background-color: white;
+        cursor: pointer;
+        transition: 0.2s all;
+
+        &:hover {
+            background-color: rgb(227, 243, 253);
+        }
+
+        &:active {
+            background-color: rgb(200, 233, 255);
+        }
+    }
+}
+
+#blah {
+    width: 705px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border: 1px solid #edeff1;
+    border-radius: 8px;
+    align-self: center;
+}
+
+.delete {
+    display: flex;
+    background-color: black;
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    position: absolute;
+    padding: 6px;
+    cursor: pointer;
+    top: 318px;
+    transition: 0.2s all;
+    left: 1104px;
+
+    &:hover {
+        background-color: #1c1c1c;
+    }
+
+    .remove {
+        height: 16px;
+    }
+}
+
+.lds-ring {
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 20px;
+  }
+  .lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    margin: 2px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #fff transparent transparent transparent;
+  }
+  .lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+  .lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+  }
+  @keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }

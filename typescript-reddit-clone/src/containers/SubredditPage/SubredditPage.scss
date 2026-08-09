@@ -1,0 +1,403 @@
+// CSS
+.subredditPage {
+
+    .subredditBanner {
+        margin-top: 49px;
+        width: 100vw;
+        max-height: 400px;
+        z-index: 1;
+        position: relative;
+        cursor: pointer;
+    }
+}
+
+.subredditContent {
+    display: flex;
+    gap: 24px;
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .aboutCommunity {
+            background-color: white;
+            border: 1px solid #ccc;
+            width: 312px;
+            box-sizing: border-box;
+            border-radius: 4px;
+
+            .head {
+                display: flex;
+                justify-content: space-between;
+                padding: 14px 12px 12px 12px;
+                align-items: center;
+                border-radius: 4px;
+                border-bottom-left-radius: 0px;
+                border-bottom-right-radius: 0px;
+
+                h3 {
+                    font-size: 14px;
+                    font-family: "IBM Regular";
+                    letter-spacing: 0.03em;
+                    color: #ffffff;
+                    padding-bottom: 2px;
+                }
+
+                .more {
+                    height: .2575em;
+                    padding: 8px 4px;
+                    border: 1px transparent;
+                    border-radius: 2px;
+                    cursor: pointer;
+                    transition: 0.15s all;
+
+                    &:hover {
+                        background-color: rgba(0, 0, 0, 0.15)
+                    }
+                }
+            }
+
+            .about {
+                font-size: 14px;
+                line-height: 1.475;
+                padding: 12px 16px 0px 11px;
+                font-family: "Noto Sans Regular";
+                color: #1a1a1b;
+            }
+
+            .createdAt {
+                display: flex;
+                gap: 8px;
+                padding: 11px 16px 0px 12px;
+
+                .cake {
+                    height: 1.1387em;
+                    width: 1.19em;
+                }
+
+                p {
+                    font-size: 14px;
+                    font-family: "Noto Sans Regular";
+                    color: #737373;
+                }
+            }
+
+            .memberContainer {
+                display: flex;
+                justify-content: flex-start;
+                gap: 24px;
+                margin: 17px 14px 16px 11px;
+                padding: 16px 0px;
+                border-top: 1px solid rgba(26,26,27,0.07);
+                border-bottom: 1px solid rgba(26,26,27,0.07);
+
+                .memberCount p,
+                .onlineCount p,
+                .size p {
+                    font-size: 16px;
+                    font-family: "IBM";
+                    color: #1a1a1b;
+                    margin-bottom: 3px;
+                }
+
+                .memberCount h5,
+                .onlineCount h5,
+                .size h5 {
+                    font-size: 12px;
+                    font-family: "IBM Light";
+                    color: #737373;
+                }
+            }
+
+            .createPost {
+                padding: 5px 0px 6px 0px;
+                border: 1px solid transparent;
+                border-radius: 9999px;
+                width: 92.2%;
+                margin: 0px 12px;
+                font-size: 14px;
+                color: white;
+                font-family: "Noto Sans Bold";
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.number {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+
+    .dot {
+        height: 5px;
+        width: 5px;
+        background-color: #46d160;
+        border: 1px solid transparent;
+        border-radius: 9999px;
+    }
+}
+
+.userFlair {
+    margin-top: 16px;
+    margin-left: 10px;
+    margin-right: 11px;
+    border-top: 1px solid rgba(26,26,27,0.07);
+
+    .userFlairDesc,
+    .user {
+        display: flex;
+    }
+
+    .userFlairDesc {
+        justify-content: space-between;
+        margin-right: 8px;
+        margin-left: 1px;
+
+        h5 {
+            margin-top: 25px;
+            font-size: 10px;
+            letter-spacing: 0.07em;
+            color: #1a1a1b;
+            font-family: "IBM";
+        }
+    }
+
+    .user {
+        margin-top: 12px;
+        align-items: center;
+        gap: 6px;
+
+        .avatar {
+            height: 38px;
+            margin-right: 1px;
+        }
+
+        .userName {
+            font-size: 12px;
+            font-family: "IBM";
+            color: #1a1a1b;
+        }
+    }
+}
+
+.communityOptions {
+    border-top: 1px solid rgba(26,26,27,0.07);
+    margin: 15px 12px 4px 12px;
+    padding: 18px 0px 12px 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .theme {
+        display: flex;
+        margin-top: 12px;
+        align-items: center;
+        justify-content: space-between;
+
+        .leftTheme {
+            display: flex;
+            margin: 0px 3px;
+
+            p {
+                padding-bottom: 3px;
+                font-size: 12px;
+                font-family: "Noto Sans Regular";
+                color: #1a1a1b;
+            }
+    
+            .eye {
+                height: 16px;
+                margin-right: 7px;
+            }
+        }
+    }
+
+    .communityToggle {
+        width: 100%;
+        padding: 7px 12px 7px 12px;
+        color: #1a1a1b;
+        font-size: 11px;
+        font-family: "IBM";
+        cursor: pointer;
+        align-items: center;
+        border: 1px transparent;
+        background-color: white;
+        border-radius: 9999px;
+        display: flex;
+        justify-content: space-between;
+
+        &:hover {
+            background-color: #ededed;
+        }
+
+        &:focus {
+            background-color: #dbdbdb;
+        }
+    }
+}
+
+.switch {
+    width: 46px;
+    height: 22px;
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    cursor: pointer;
+    position: relative;
+    transition: 0.2s all;
+
+    .dot {
+        position: absolute;
+        transition: 0.2s all;
+        top: 0;
+        height: 17px;
+        width: 17px;
+        background-color: white;
+        box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.2);
+        border: 1px solid transparent;
+        border-radius: 50%;
+    }
+}
+
+.expand {
+    transition: 0.3s all;
+}
+
+.rulesContainer {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+
+    .head {
+        padding: 12px 12px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+
+        h3 {
+            font-size: 14px;
+            font-family: "IBM Regular";
+            color: #ffffff;
+            letter-spacing: 0.04em;
+
+        }
+    }
+
+    .ruleContainer,
+    .firstRuleContainer,
+    .lastRuleContainer {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        width: 310px;
+
+        .ruleHead {
+            display: flex;
+            margin-bottom: 8px;
+            cursor: pointer;
+            
+            * {
+                pointer-events: none;
+            }
+
+            .titleDiv {
+                display: flex;
+                width: 91.5%;
+
+                h3 {
+                    font-size: 14px;
+                    font-family: "IBM Regular";
+                    color: #1a1a1b;
+                }
+
+                .rule-num {
+                    margin-right: 3px;
+                }
+            }
+
+            img.expand {
+                margin-top: 6px;
+                margin-left: 8px;
+                transition: 0.175s all;
+            }
+        }
+
+        .ruleFooter {
+            padding-left: 16px;
+            width: 84%;
+        }
+    }
+}
+
+.ruleContainer {
+    padding: 10px 12px 4px 12px;
+    border-top: 1px solid rgba(26,26,27,0.07);
+}
+
+.firstRuleContainer {
+    padding: 18px 12px 4px 12px;
+}
+
+.lastRuleContainer {
+    padding: 14px 12px 10px 12px;
+    border-top: 1px solid rgba(26,26,27,0.07);
+}
+
+.ruleFooter {
+    font-size: 14px;
+    font-family: "Noto Sans Regular";
+    color: #1a1a1b;
+    padding-bottom: 12px;
+}
+
+.flairsContainer {
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 310px;
+
+    .head {
+        border: 1px solid transparent;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        color: white;
+        font-family: "IBM Regular";
+        letter-spacing: 0.04em;
+        padding: 11px 12px;
+
+        h3 {
+            font-size: 14px;
+        }
+    }
+
+    .flairList {
+        display: flex;
+        gap: 6px;
+        width: 310px;
+        flex-wrap: wrap;
+        width: 93.5%;
+        padding: 16px 10px 20px 10px !important;
+
+        .flair {
+            border: 1px solid transparent;
+            border-radius: 9999px;
+            padding: 6px 10px;
+            color: white;
+            font-size: 14px;
+            font-family: "IBM";
+            cursor: pointer;
+
+            &:hover {
+                box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+            }
+
+            &:active {
+                box-shadow: inset 0 0 100px 100px rgba(0, 0, 0, 0.1);
+            }
+        }
+    }
+}
+
+.subredditPage::-webkit-scrollbar {
+    display: none;
+}

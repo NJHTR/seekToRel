@@ -1,0 +1,3 @@
+com.reportai.auth.jwt.JwtAuthenticationAutoConfiguration
+com.reportai.auth.jwt.LocalAuthAutoConfiguration
+com.reportai.auth.ratelimit.AuthRateLimitAutoConfiguration

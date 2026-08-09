@@ -1,0 +1,157 @@
+name: report-ai-ci
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: report-ai-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Verify reactor
+        run: bash ./mvnw -B -ntp -Pquality verify -Dmaven.compiler.release=21
+      - name: Verify executable application jar
+        shell: bash
+        run: |
+          jar=$(find report-ai-application/target -maxdepth 1 -type f -name 'report-ai-application-*.jar' ! -name '*.original' | head -n 1)
+          test -n "$jar"
+          jar tf "$jar" | grep -q '^BOOT-INF/classes/com/reportai/application/ReportAiApplication.class$'
+          jar tf "$jar" | grep -q '^BOOT-INF/lib/spring-boot-'
+      - name: Publish Java quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-quality-reports
+          if-no-files-found: ignore
+          path: |
+            **/target/site/jacoco/**
+            **/target/reports/pmd.html
+            **/target/reports/cpd.html
+            **/target/reports/pmd.xml
+            **/target/reports/cpd.xml
+      - name: Dependency tree
+        run: bash ./mvnw -B -ntp dependency:tree -DoutputType=text
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            report-ai-ui/package-lock.json
+            nexus-intelligence-workspace/package-lock.json
+            react-ecommerce-store/package-lock.json
+            typescript-reddit-clone/package-lock.json
+      - name: Verify Vue UI
+        run: npm ci --prefix report-ai-ui && npm run build --prefix report-ai-ui
+      - name: Audit Vue UI dependencies
+        run: npm audit --audit-level=high --prefix report-ai-ui
+      - name: Install active Nexus desktop dependencies
+        run: npm ci --prefix nexus-intelligence-workspace
+      - name: Install embedded portfolio dependencies
+        run: |
+          npm ci --prefix react-ecommerce-store
+          npm ci --prefix typescript-reddit-clone
+      - name: Verify active Nexus desktop
+        run: |
+          npm run lint --prefix nexus-intelligence-workspace
+          npm run build --prefix nexus-intelligence-workspace
+      - name: Audit active and embedded frontend dependencies
+        run: |
+          npm audit --audit-level=high --prefix nexus-intelligence-workspace
+          npm audit --audit-level=high --prefix react-ecommerce-store
+          npm audit --audit-level=high --prefix typescript-reddit-clone
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Cache OWASP vulnerability database
+        uses: actions/cache@v4
+        with:
+          path: .security/dependency-check-data
+          key: dependency-check-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            dependency-check-${{ runner.os }}-
+      - name: Run OWASP dependency scan
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: bash ./mvnw -B -ntp -Psecurity verify -DskipTests
+      - name: Publish dependency scan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          if-no-files-found: error
+          path: |
+            target/dependency-check/**
+      - name: Upload dependency scan SARIF
+        if: >-
+          always() && hashFiles('target/dependency-check/*.sarif') != '' &&
+          (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: target/dependency-check/dependency-check-report.sarif
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Run container-backed integration evidence
+        run: bash ./mvnw -B -ntp -Pintegration verify -Dmaven.compiler.release=21
+      - name: Capture integration environment and test reports
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p target/integration-evidence
+          docker version > target/integration-evidence/docker-version.txt 2>&1 || true
+          docker info > target/integration-evidence/docker-info.txt 2>&1 || true
+          find . -path '*/target/surefire-reports/*' -type f -exec cp --parents '{}' target/integration-evidence/ \; || true
+      - name: Publish integration evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: container-integration-evidence
+          if-no-files-found: warn
+          path: target/integration-evidence/**

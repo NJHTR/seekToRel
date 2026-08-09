@@ -1,0 +1,44 @@
+.skills-container {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    padding-top: 40px;
+    padding-bottom: 174px;
+    position: relative;
+
+    #skills {
+        position: absolute;
+        top: 62px;
+    }
+
+    .skill-grid {
+        align-self: center;
+        margin-right: 100px;
+        display: flex;
+        flex-direction: column;
+        margin-top: 58px;
+
+        @media screen and (max-width: 1160px) {
+            margin-right: 0px;
+        }
+
+        .skill-grid-first-row {
+            align-self: center;
+        }
+
+        .skill-grid-second-row,
+        .skill-grid-third-row {
+            display: flex;
+            gap: 18px;
+            margin-top: 18px;
+
+            @media screen and (max-width: 640px) {
+                flex-direction: column;
+            }
+        }
+
+        .skill-grid-third-row {
+            align-self: center;
+        }
+    }
+}

@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background-color: #f9f9f8;
+    color: #1a1c1c;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.font-display-lg {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.font-headline-md {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+}
+
+.font-headline-sm {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.font-body-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.font-body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.font-label-caps {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.glass-header {
+  background: rgba(249, 249, 248, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #c7c4d8;
+}
+
+.document-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  border-color: #c3c0ff;
+}
+
+.agent-pulse {
+  animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-left-color: #3525cd; }
+  50% { border-left-color: #c3c0ff; }
+}
+
+@keyframes flowPulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.flow-line-active {
+  animation: flowPulse 2s infinite ease-in-out;
+}
+
+@keyframes agentProcessingGlow {
+  0% { background-color: #ffffff; }
+  50% { background-color: #e2dfff; }
+  100% { background-color: #ffffff; }
+}
+
+.agent-processing {
+  animation: agentProcessingGlow 4s infinite alternate;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e8e8e7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c7c4d8;
+}

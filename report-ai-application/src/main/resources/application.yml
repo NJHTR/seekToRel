@@ -1,0 +1,175 @@
+spring:
+  application:
+    name: report-ai
+  datasource:
+    url: ${REPORT_AI_DB_URL:jdbc:postgresql://localhost:5432/report_ai}
+    username: ${REPORT_AI_DB_USERNAME:report_ai}
+    password: ${REPORT_AI_DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: ${REPORT_AI_DB_POOL_SIZE:10}
+      minimum-idle: ${REPORT_AI_DB_MIN_IDLE:2}
+      connection-timeout: ${REPORT_AI_DB_CONNECTION_TIMEOUT_MS:3000}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+  jackson:
+    default-property-inclusion: non_null
+  mail:
+    host: ${REPORT_AI_SMTP_HOST:}
+    port: ${REPORT_AI_SMTP_PORT:465}
+    username: ${REPORT_AI_SMTP_USERNAME:}
+    password: ${REPORT_AI_SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${REPORT_AI_SMTP_AUTH:true}
+      mail.smtp.ssl.enable: ${REPORT_AI_SMTP_SSL_ENABLE:true}
+
+server:
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  health:
+    mail:
+      enabled: ${REPORT_AI_AUTH_EMAIL_ENABLED:false}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+report-ai:
+  auth:
+    local:
+      enabled: ${REPORT_AI_AUTH_LOCAL_ENABLED:false}
+      signing-secret: ${REPORT_AI_AUTH_LOCAL_SIGNING_SECRET:}
+      issuer: ${REPORT_AI_AUTH_LOCAL_ISSUER:report-ai}
+      audience: ${REPORT_AI_AUTH_LOCAL_AUDIENCE:report-ai-web}
+      key-id: ${REPORT_AI_AUTH_LOCAL_KEY_ID:local-v1}
+      access-token-ttl: ${REPORT_AI_AUTH_LOCAL_ACCESS_TTL:PT15M}
+      refresh-token-ttl: ${REPORT_AI_AUTH_LOCAL_REFRESH_TTL:P30D}
+      bcrypt-strength: ${REPORT_AI_AUTH_LOCAL_BCRYPT_STRENGTH:12}
+    rate-limit:
+      backend: ${REPORT_AI_AUTH_RATE_LIMIT_BACKEND:memory}
+      max-attempts-per-window: ${REPORT_AI_AUTH_RATE_LIMIT_MAX_ATTEMPTS:10}
+      window-seconds: ${REPORT_AI_AUTH_RATE_LIMIT_WINDOW_SECONDS:60}
+      redis-key-prefix: ${REPORT_AI_AUTH_RATE_LIMIT_REDIS_KEY_PREFIX:reportai:auth-rate:}
+    email:
+      enabled: ${REPORT_AI_AUTH_EMAIL_ENABLED:false}
+      from: ${REPORT_AI_AUTH_EMAIL_FROM:}
+      base-url: ${REPORT_AI_AUTH_EMAIL_BASE_URL:http://127.0.0.1:5173}
+      subject-prefix: ${REPORT_AI_AUTH_EMAIL_SUBJECT_PREFIX:ReportAI}
+  upload:
+    max-bytes: ${REPORT_AI_UPLOAD_MAX_BYTES:20971520}
+    max-file-name-length: ${REPORT_AI_UPLOAD_MAX_FILE_NAME_LENGTH:255}
+    allowed-media-types:
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    allowed-extensions:
+      - .docx
+  parser:
+    max-input-bytes: ${REPORT_AI_PARSER_MAX_INPUT_BYTES:20971520}
+    max-zip-entries: ${REPORT_AI_PARSER_MAX_ZIP_ENTRIES:2000}
+    max-uncompressed-bytes: ${REPORT_AI_PARSER_MAX_UNCOMPRESSED_BYTES:104857600}
+    max-single-entry-bytes: ${REPORT_AI_PARSER_MAX_SINGLE_ENTRY_BYTES:52428800}
+    max-xml-entry-bytes: ${REPORT_AI_PARSER_MAX_XML_ENTRY_BYTES:10485760}
+    max-blocks: ${REPORT_AI_PARSER_MAX_BLOCKS:10000}
+    max-text-chars: ${REPORT_AI_PARSER_MAX_TEXT_CHARS:1000000}
+    max-compression-ratio: ${REPORT_AI_PARSER_MAX_COMPRESSION_RATIO:100}
+  runtime:
+    enabled: ${REPORT_AI_RUNTIME_ENABLED:false}
+    image-pull-enabled: ${REPORT_AI_RUNTIME_IMAGE_PULL_ENABLED:false}
+    cleanup-interval: ${REPORT_AI_RUNTIME_CLEANUP_INTERVAL:PT5M}
+    cleanup-stale-after: ${REPORT_AI_RUNTIME_CLEANUP_STALE_AFTER:PT30M}
+    cleanup-max-entries: ${REPORT_AI_RUNTIME_CLEANUP_MAX_ENTRIES:1000}
+    catalog:
+      enabled: ${REPORT_AI_RUNTIME_CATALOG_ENABLED:false}
+      path: ${REPORT_AI_RUNTIME_CATALOG_PATH:}
+      signature-path: ${REPORT_AI_RUNTIME_CATALOG_SIGNATURE_PATH:}
+      public-key: ${REPORT_AI_RUNTIME_CATALOG_PUBLIC_KEY:}
+      public-key-path: ${REPORT_AI_RUNTIME_CATALOG_PUBLIC_KEY_PATH:}
+      max-bytes: ${REPORT_AI_RUNTIME_CATALOG_MAX_BYTES:1048576}
+    workspace-root: ${REPORT_AI_RUNTIME_WORKSPACE_ROOT:./workspaces}
+    capabilities: ${REPORT_AI_RUNTIME_CAPABILITIES:python:3.12-slim; standard-library only; network disabled; tenant-approved task inputs and DOCX embedded assets are mounted read-only under /workspace/input; entry point receives no CLI arguments}
+    timeout: ${REPORT_AI_RUNTIME_TIMEOUT:PT2M}
+    max-output-bytes: ${REPORT_AI_RUNTIME_MAX_OUTPUT_BYTES:2097152}
+    cpu-limit: ${REPORT_AI_RUNTIME_CPU_LIMIT:1}
+    memory-bytes: ${REPORT_AI_RUNTIME_MEMORY_BYTES:536870912}
+    network-enabled: ${REPORT_AI_RUNTIME_NETWORK_ENABLED:false}
+    max-artifacts: ${REPORT_AI_RUNTIME_MAX_ARTIFACTS:100}
+    max-artifact-bytes: ${REPORT_AI_RUNTIME_MAX_ARTIFACT_BYTES:52428800}
+    max-input-bytes: ${REPORT_AI_RUNTIME_MAX_INPUT_BYTES:536870912}
+    max-cpu-limit: ${REPORT_AI_RUNTIME_MAX_CPU_LIMIT:4}
+    max-memory-bytes: ${REPORT_AI_RUNTIME_MAX_MEMORY_BYTES:4294967296}
+    max-timeout: ${REPORT_AI_RUNTIME_MAX_TIMEOUT:PT10M}
+  object-storage:
+    enabled: ${REPORT_AI_OBJECT_STORAGE_ENABLED:false}
+    endpoint: ${REPORT_AI_OBJECT_STORAGE_ENDPOINT:}
+    bucket: ${REPORT_AI_OBJECT_STORAGE_BUCKET:}
+    region: ${REPORT_AI_OBJECT_STORAGE_REGION:us-east-1}
+    access-key: ${REPORT_AI_OBJECT_STORAGE_ACCESS_KEY:}
+    secret-key: ${REPORT_AI_OBJECT_STORAGE_SECRET_KEY:}
+    path-style: ${REPORT_AI_OBJECT_STORAGE_PATH_STYLE:true}
+    create-bucket-if-missing: ${REPORT_AI_OBJECT_STORAGE_CREATE_BUCKET_IF_MISSING:false}
+    connect-timeout: ${REPORT_AI_OBJECT_STORAGE_CONNECT_TIMEOUT:PT5S}
+    reconciliation-interval: ${REPORT_AI_OBJECT_STORAGE_RECONCILIATION_INTERVAL:PT10M}
+    reconciliation-batch-size: ${REPORT_AI_OBJECT_STORAGE_RECONCILIATION_BATCH_SIZE:100}
+    orphan-retention: ${REPORT_AI_OBJECT_STORAGE_ORPHAN_RETENTION:P7D}
+  llm:
+    enabled: ${REPORT_AI_LLM_ENABLED:false}
+    provider: ${REPORT_AI_LLM_PROVIDER:}
+    endpoint: ${REPORT_AI_LLM_ENDPOINT:}
+    model: ${REPORT_AI_LLM_MODEL:}
+    api-key: ${REPORT_AI_LLM_API_KEY:}
+    reasoning-effort: ${REPORT_AI_LLM_REASONING_EFFORT:}
+    # Code generation is deliberately bounded.  The upstream gateway may close
+    # a request after roughly two minutes; concise low-effort generation keeps
+    # the first attempt inside that envelope while remaining configurable for
+    # providers with a longer execution budget.
+    coder-reasoning-effort: ${REPORT_AI_LLM_CODER_REASONING_EFFORT:medium}
+    coder-fallback-reasoning-effort: ${REPORT_AI_LLM_CODER_FALLBACK_REASONING_EFFORT:low}
+    coder-fallback-enabled: ${REPORT_AI_LLM_CODER_FALLBACK_ENABLED:true}
+    coder-max-output-tokens: ${REPORT_AI_LLM_CODER_MAX_OUTPUT_TOKENS:8192}
+    coder-timeout: ${REPORT_AI_LLM_CODER_TIMEOUT:PT105S}
+    vision-max-attachments: ${REPORT_AI_LLM_VISION_MAX_ATTACHMENTS:16}
+    vision-max-attachment-bytes: ${REPORT_AI_LLM_VISION_MAX_ATTACHMENT_BYTES:20971520}
+    vision-max-attachment-total-bytes: ${REPORT_AI_LLM_VISION_MAX_ATTACHMENT_TOTAL_BYTES:41943040}
+    connect-timeout: ${REPORT_AI_LLM_CONNECT_TIMEOUT:PT10S}
+    read-timeout: ${REPORT_AI_LLM_READ_TIMEOUT:PT180S}
+  observability:
+    slow-request-threshold: ${REPORT_AI_SLOW_REQUEST_THRESHOLD:PT2S}
+    log-all-requests: ${REPORT_AI_LOG_ALL_REQUESTS:false}
+    metrics-enabled: ${REPORT_AI_METRICS_ENABLED:true}
+    max-path-length: ${REPORT_AI_MAX_PATH_LENGTH:256}
+  progress:
+    emitter-timeout: ${REPORT_AI_PROGRESS_EMITTER_TIMEOUT:PT15M}
+    max-subscribers-per-task: ${REPORT_AI_PROGRESS_MAX_SUBSCRIBERS_PER_TASK:64}
+    max-total-subscribers: ${REPORT_AI_PROGRESS_MAX_TOTAL_SUBSCRIBERS:4096}
+    max-replay-events-per-task: ${REPORT_AI_PROGRESS_MAX_REPLAY_EVENTS_PER_TASK:128}
+    max-replay-tasks: ${REPORT_AI_PROGRESS_MAX_REPLAY_TASKS:1000}
+  scheduler:
+    enabled: ${REPORT_AI_SCHEDULER_ENABLED:true}
+    worker-count: ${REPORT_AI_SCHEDULER_WORKER_COUNT:4}
+    queue-capacity: ${REPORT_AI_SCHEDULER_QUEUE_CAPACITY:256}
+    lease-duration: ${REPORT_AI_SCHEDULER_LEASE_DURATION:PT2M}
+    execution-timeout: ${REPORT_AI_SCHEDULER_EXECUTION_TIMEOUT:PT10M}
+    max-progress-message-length: ${REPORT_AI_SCHEDULER_MAX_PROGRESS_MESSAGE_LENGTH:2000}
+    recovery-interval: ${REPORT_AI_SCHEDULER_RECOVERY_INTERVAL:PT5S}
+    recovery-initial-delay: ${REPORT_AI_SCHEDULER_RECOVERY_INITIAL_DELAY:PT0S}
+    dispatch-batch-size: ${REPORT_AI_SCHEDULER_DISPATCH_BATCH_SIZE:16}
+    report-task-max-attempts: ${REPORT_AI_SCHEDULER_REPORT_TASK_MAX_ATTEMPTS:3}
+    report-task-initial-backoff: ${REPORT_AI_SCHEDULER_REPORT_TASK_INITIAL_BACKOFF:PT5S}
+    report-task-max-backoff: ${REPORT_AI_SCHEDULER_REPORT_TASK_MAX_BACKOFF:PT5M}
+    outbox-published-retention: ${REPORT_AI_SCHEDULER_OUTBOX_PUBLISHED_RETENTION:P7D}
+    outbox-cleanup-batch-size: ${REPORT_AI_SCHEDULER_OUTBOX_CLEANUP_BATCH_SIZE:500}
+  memory-snapshot:
+    enabled: ${REPORT_AI_MEMORY_SNAPSHOT_ENABLED:true}
+    interval: ${REPORT_AI_MEMORY_SNAPSHOT_INTERVAL:PT10M}
+    initial-delay: ${REPORT_AI_MEMORY_SNAPSHOT_INITIAL_DELAY:PT1M}
+    batch-size: ${REPORT_AI_MEMORY_SNAPSHOT_BATCH_SIZE:50}
+    max-summary-chars: ${REPORT_AI_MEMORY_SNAPSHOT_MAX_SUMMARY_CHARS:16384}
+    max-attempts: ${REPORT_AI_MEMORY_SNAPSHOT_MAX_ATTEMPTS:3}

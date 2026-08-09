@@ -1,0 +1,311 @@
+.desktop-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  background-color: #17365d;
+  background-position: center;
+  background-size: cover;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+}
+
+.mac-menu-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  padding: 0 13px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(18, 22, 33, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(22px) saturate(1.2);
+  font-size: 12px;
+  font-weight: 520;
+}
+
+.mac-menu-left, .mac-menu-right { display: flex; align-items: center; gap: 4px; }
+.mac-menu-right { gap: 12px; font-size: 11px; }
+.mac-menu-button { border: 0; border-radius: 5px; padding: 4px 8px; color: inherit; background: transparent; cursor: pointer; font: inherit; }
+.mac-menu-button:hover, .mac-menu-button-active { background: rgba(255, 255, 255, 0.18); }
+.mac-apple-button { padding: 4px 7px; }
+.mac-active-app { margin: 0 8px 0 4px; font-weight: 700; }
+.mac-menu-label { padding: 4px 7px; }
+.mac-control-button { display: inline-flex; align-items: center; padding: 3px 5px; }
+
+.mac-menu-popover, .mac-settings-popover {
+  position: absolute;
+  top: 29px;
+  min-width: 224px;
+  padding: 6px;
+  color: #202127;
+  background: rgba(247, 248, 250, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 9px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(26px) saturate(1.4);
+}
+.mac-apple-popover { left: 11px; }
+.mac-file-popover { left: 116px; }
+.mac-settings-popover { right: 12px; min-width: 286px; }
+.mac-menu-popover button { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 30px; padding: 5px 9px; border: 0; border-radius: 5px; color: inherit; background: transparent; text-align: left; font-size: 12px; cursor: pointer; }
+.mac-menu-popover button:hover { color: #fff; background: #3067d6; }
+.mac-menu-popover button:disabled { opacity: 0.42; cursor: default; }
+.mac-menu-popover .report-ai-icon, .mac-menu-popover .notes-app-icon { width: 20px; height: 20px; border-radius: 5px; }
+.mac-menu-popover .notes-app-icon svg { width: 13px; }
+.mac-menu-divider { height: 1px; margin: 5px 4px; background: rgba(30, 31, 35, 0.13); }
+.mac-popover-heading { display: flex; justify-content: space-between; padding: 5px 7px 8px; font-size: 12px; font-weight: 700; }
+.mac-popover-muted { color: #6e6f75; font-weight: 500; }
+.wallpaper-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.wallpaper-option { display: flex; flex-direction: column; gap: 5px; padding: 4px; border: 0; border-radius: 6px; color: #41434a; background: transparent; font-size: 10px; cursor: pointer; }
+.wallpaper-option img { width: 100%; aspect-ratio: 1.7; object-fit: cover; border-radius: 4px; }
+.wallpaper-option:hover, .wallpaper-option-active { background: rgba(48, 103, 214, 0.14); }
+.wallpaper-option-active img { outline: 2px solid #3067d6; outline-offset: 1px; }
+
+.desktop-stage { position: absolute; inset: 30px 0 0; }
+.desktop-icons { position: absolute; top: 24px; right: 24px; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+.desktop-icon { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 76px; padding: 5px 4px; border: 1px solid transparent; border-radius: 7px; color: #fff; background: transparent; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.78); font-size: 11px; cursor: pointer; }
+.desktop-icon:hover { background: rgba(255, 255, 255, 0.17); border-color: rgba(255, 255, 255, 0.23); }
+.desktop-folder-icon { display: grid; place-items: center; width: 52px; height: 52px; color: #f2f6ff; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4)); }
+
+.desktop-welcome { position: absolute; left: 32px; bottom: 106px; display: flex; flex-direction: column; color: rgba(255, 255, 255, 0.82); text-shadow: 0 2px 6px rgba(0, 0, 0, 0.48); }
+.desktop-welcome span { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.desktop-welcome strong { margin-top: 3px; font-size: 24px; font-weight: 620; }
+.desktop-welcome small { margin-top: 3px; font-size: 11px; }
+
+.report-ai-icon, .notes-app-icon, .store-app-icon, .reddit-app-icon { display: grid; place-items: center; width: 54px; height: 54px; color: #fff; border: 1px solid rgba(255, 255, 255, 0.64); border-radius: 13px; box-shadow: inset 0 1px rgba(255, 255, 255, 0.35), 0 5px 10px rgba(0, 0, 0, 0.28); }
+.report-ai-icon { background: #4936c8; }
+.notes-app-icon { overflow: hidden; color: #5b4b15; background: #f6cf4e; }
+.notes-app-icon svg { display: block; width: 100%; height: 100%; }
+.store-app-icon { background: #141518; }
+.reddit-app-icon { background: #f4511e; }
+.report-ai-icon-small { width: 28px; height: 28px; border-radius: 7px; }
+.desktop-icon-small { width: 28px; height: 28px; border-radius: 7px; }
+
+.desktop-app-window {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  max-width: calc(100vw - 70px);
+  max-height: calc(100vh - 164px);
+  min-width: 300px;
+  min-height: 260px;
+  overflow: hidden;
+  color: #24252a;
+  background: #f6f7f8;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 11px;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.46), 0 4px 18px rgba(0, 0, 0, 0.2);
+}
+.desktop-app-window-maximized { inset: 8px 12px 82px; width: auto !important; height: auto !important; max-width: none; max-height: none; }
+.desktop-window-titlebar { position: relative; display: flex; flex: 0 0 38px; align-items: center; justify-content: space-between; height: 38px; padding: 0 11px; color: #3c3d43; background: rgba(240, 241, 244, 0.97); border-bottom: 1px solid #d2d2d7; cursor: grab; user-select: none; }
+.desktop-window-titlebar:active { cursor: grabbing; }
+.desktop-window-title { position: absolute; left: 50%; display: inline-flex; align-items: center; gap: 7px; transform: translateX(-50%); font-size: 12px; font-weight: 650; }
+.desktop-window-title .report-ai-icon { width: 25px; height: 25px; border-radius: 6px; }
+.desktop-window-title .report-ai-icon svg { width: 15px; }
+.desktop-window-actions button { display: inline-grid; place-items: center; padding: 4px; border: 0; border-radius: 5px; color: #6a6b72; background: transparent; cursor: pointer; }
+.desktop-window-actions button:hover { color: #222329; background: rgba(0, 0, 0, 0.08); }
+.traffic-lights { display: flex; align-items: center; gap: 7px; }
+.traffic { width: 13px; height: 13px; padding: 0; border: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16); cursor: pointer; }
+.traffic-red { background: #ff5e57; }
+.traffic-yellow { background: #ffbd2e; }
+.traffic-green { background: #28c840; }
+.traffic:hover { filter: brightness(0.9); }
+.desktop-window-content {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  container-name: app-window;
+  container-type: inline-size;
+}
+.report-ai-frame { display: block; width: 100%; height: 100%; border: 0; background: #f9f9f8; }
+.portfolio-app-frame { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+
+.finder-app { display: grid; grid-template-columns: 168px minmax(0, 1fr); width: 100%; height: 100%; }
+.finder-app-sidebar { padding: 18px 10px; background: rgba(226, 228, 233, 0.86); border-right: 1px solid #d1d2d6; }
+.finder-app-sidebar p { margin: 7px 9px 5px; color: #797a80; font-size: 10px; font-weight: 700; letter-spacing: 0; }
+.finder-app-sidebar button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 9px; border: 0; border-radius: 6px; color: #424349; background: transparent; font-size: 12px; text-align: left; cursor: pointer; }
+.finder-app-sidebar button:hover, .finder-app-sidebar button.active { color: #174eaf; background: rgba(48, 103, 214, 0.15); }
+.finder-app-main { display: flex; min-width: 0; flex-direction: column; background: rgba(251, 251, 252, 0.96); }
+.finder-toolbar { display: flex; align-items: center; justify-content: space-between; min-height: 50px; padding: 0 17px; border-bottom: 1px solid #dedfe2; }
+.finder-path { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 650; }
+.finder-search { display: flex; align-items: center; gap: 5px; width: 170px; padding: 4px 7px; border: 1px solid #cfd0d4; border-radius: 6px; color: #74767d; background: #fff; }
+.finder-search input { width: 100%; min-width: 0; border: 0; outline: 0; color: #34353a; background: transparent; font-size: 11px; }
+.finder-projects { flex: 1; min-height: 0; padding: 19px; overflow: auto; }
+.finder-section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+.finder-section-heading > div { display: flex; flex-direction: column; gap: 2px; }
+.finder-section-heading strong { font-size: 15px; }
+.finder-section-heading span { color: #818289; font-size: 10px; }
+.finder-section-heading button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 1px solid #d5d6da; border-radius: 6px; color: #56575e; background: #fff; cursor: pointer; }
+.project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.project-tile { display: flex; align-items: center; gap: 11px; min-width: 0; padding: 11px; border: 1px solid #e0e1e4; border-radius: 7px; color: #303137; background: #fff; text-align: left; cursor: pointer; }
+.project-tile:hover { border-color: #9ab8ed; background: #f3f7ff; }
+.project-icon { display: grid; place-items: center; width: 41px; height: 41px; flex: 0 0 41px; border-radius: 9px; color: #3f32ba; background: #eceaff; }
+.project-copy { display: flex; min-width: 0; flex-direction: column; }
+.project-copy strong, .project-copy small, .project-copy em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-copy strong { font-size: 12px; }
+.project-copy small { margin-top: 2px; color: #6f7077; font-size: 10px; }
+.project-copy em { margin-top: 4px; color: #315eaa; font-size: 9px; font-style: normal; }
+.application-grid { display: grid; grid-template-columns: repeat(4, 82px); gap: 18px; }
+.application-grid button { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 6px; border: 1px solid transparent; border-radius: 8px; color: #3d3e43; background: transparent; font-size: 10px; cursor: pointer; }
+.application-grid button:hover { border-color: #c9d8f2; background: #eef4ff; }
+.application-grid img, .application-grid .report-ai-icon, .application-grid .notes-app-icon, .application-grid .store-app-icon, .application-grid .reddit-app-icon { width: 52px; height: 52px; object-fit: contain; }
+.finder-status { padding: 6px 16px; color: #777980; border-top: 1px solid #dedfe2; font-size: 10px; }
+
+.notes-app { display: grid; grid-template-columns: 210px minmax(0, 1fr); width: 100%; height: 100%; background: #fffdf6; }
+.notes-sidebar { padding: 14px 9px; background: #f0ece1; border-right: 1px solid #dbd5c6; }
+.notes-sidebar-heading { display: flex; align-items: center; justify-content: space-between; padding: 0 7px 12px; }
+.notes-sidebar-heading button { display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 6px; color: #655319; background: transparent; cursor: pointer; }
+.notes-sidebar-heading button:hover { background: rgba(114, 95, 29, 0.12); }
+.note-list-item { display: flex; width: 100%; flex-direction: column; gap: 4px; padding: 10px; overflow: hidden; border: 0; border-radius: 7px; color: #333229; background: transparent; text-align: left; cursor: pointer; }
+.note-list-item.active { background: #f3d76e; }
+.note-list-item strong, .note-list-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.note-list-item strong { font-size: 12px; }
+.note-list-item span { color: #676354; font-size: 10px; }
+.note-editor { display: flex; min-width: 0; flex-direction: column; padding: 18px 24px; }
+.note-editor header { display: flex; justify-content: space-between; margin-bottom: 18px; color: #8d897a; font-size: 10px; }
+.note-title { width: 100%; padding: 0; border: 0; outline: 0; color: #2e2d28; background: transparent; font: 650 23px/30px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.note-editor textarea { width: 100%; min-height: 0; flex: 1; margin-top: 13px; padding: 0; resize: none; border: 0; outline: 0; color: #49473f; background: transparent; font: 14px/24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+.calculator-app { display: flex; height: 100%; flex-direction: column; padding: 17px; color: #fff; background: #1f2024; }
+.calculator-display { display: flex; min-height: 102px; align-items: flex-end; justify-content: flex-end; padding: 0 6px 14px; overflow: hidden; font-size: 46px; font-weight: 300; line-height: 1; }
+.calculator-grid { display: grid; flex: 1; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.calculator-key { min-width: 0; border: 0; border-radius: 999px; color: #fff; background: #4b4c51; font-size: 18px; cursor: pointer; }
+.calculator-key:hover { filter: brightness(1.2); }
+.calculator-key.utility { color: #202126; background: #a5a6aa; }
+.calculator-key.operator { background: #f39b28; }
+.calculator-key.zero { grid-column: span 2; border-radius: 999px; text-align: left; padding-left: 25px; }
+
+.calendar-app { display: flex; height: 100%; flex-direction: column; padding: 20px; color: #34353b; background: #fff; }
+.calendar-app header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.calendar-app header > div:first-child { display: flex; flex-direction: column; gap: 3px; }
+.calendar-app header span { color: #8a8b91; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.calendar-app header strong { font-size: 21px; }
+.calendar-app header > div:last-child { display: flex; align-items: center; gap: 4px; }
+.calendar-app header button { display: grid; min-width: 27px; height: 27px; place-items: center; padding: 0 7px; border: 1px solid #dadbe0; border-radius: 6px; color: #585960; background: #fff; font-size: 10px; cursor: pointer; }
+.calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.calendar-weekdays span { padding-bottom: 9px; color: #8b8c91; text-align: center; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.calendar-grid { flex: 1; border-top: 1px solid #e4e5e8; border-left: 1px solid #e4e5e8; }
+.calendar-grid span { display: flex; align-items: flex-start; justify-content: flex-end; padding: 6px; border-right: 1px solid #e4e5e8; border-bottom: 1px solid #e4e5e8; font-size: 11px; }
+.calendar-grid span.outside { color: #b4b5ba; background: #f8f8f9; }
+.calendar-grid span.today { color: #fff; background: #ec4f50; font-weight: 700; }
+
+.trash-app { display: grid; height: 100%; place-content: center; justify-items: center; color: #6d6e75; background: #fafafb; }
+.trash-app span { display: grid; width: 75px; height: 75px; place-items: center; border-radius: 18px; color: #64666e; background: #ececef; }
+.trash-app strong { margin-top: 14px; color: #34353a; font-size: 14px; }
+.trash-app p { margin: 6px 0 0; font-size: 11px; }
+
+.mac-dock { position: absolute; left: 50%; bottom: 10px; z-index: 160; display: flex; align-items: flex-end; gap: 7px; min-height: 67px; padding: 6px 9px; transform: translateX(-50%); border: 1px solid rgba(255, 255, 255, 0.33); border-radius: 18px; background: rgba(30, 32, 40, 0.47); box-shadow: 0 5px 18px rgba(0, 0, 0, 0.36), inset 0 1px rgba(255, 255, 255, 0.18); backdrop-filter: blur(25px) saturate(1.25); }
+.mac-dock-item { position: relative; display: flex; width: 57px; height: 57px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 13px; background: transparent; cursor: pointer; transition: transform 150ms ease; }
+.mac-dock-item:hover { transform: translateY(-11px) scale(1.18); }
+.mac-dock-item > img, .mac-dock-item > .report-ai-icon, .mac-dock-item > .notes-app-icon, .mac-dock-item > .store-app-icon, .mac-dock-item > .reddit-app-icon, .mac-dock-item > .mac-trash-icon { width: 51px; height: 51px; object-fit: contain; border-radius: 12px; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35)); }
+.mac-dock-tooltip { position: absolute; top: -35px; left: 50%; padding: 4px 8px; opacity: 0; pointer-events: none; transform: translateX(-50%); border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 6px; color: #fff; background: rgba(25, 26, 32, 0.72); font-size: 10px; white-space: nowrap; transition: opacity 120ms ease; }
+.mac-dock-item:hover .mac-dock-tooltip { opacity: 1; }
+.mac-dock-dot { position: absolute; bottom: -2px; left: 50%; width: 4px; height: 4px; transform: translateX(-50%); border-radius: 50%; background: #fff; }
+.mac-dock-divider { width: 1px; height: 45px; margin: 0 2px 4px; background: rgba(255, 255, 255, 0.32); }
+.mac-trash-icon { display: grid; place-items: center; color: rgba(255, 255, 255, 0.88); background: rgba(255, 255, 255, 0.16); box-shadow: inset 0 1px rgba(255, 255, 255, 0.25); }
+
+@media (max-width: 760px) {
+  .mac-menu-label, .mac-active-app { display: none; }
+  .mac-menu-right { gap: 7px; }
+  .mac-menu-right > span { display: none; }
+  .desktop-icons { top: 14px; right: 9px; }
+  .desktop-icon { min-width: 64px; }
+  .desktop-app-window, .desktop-app-window-maximized { inset: 9px 8px 80px !important; width: auto !important; height: auto !important; min-width: 0; min-height: 0; max-width: none; max-height: none; }
+  .finder-app { grid-template-columns: 104px minmax(0, 1fr); }
+  .finder-app-sidebar { padding: 12px 6px; }
+  .finder-search { width: 105px; }
+  .project-grid { grid-template-columns: 1fr; }
+  .application-grid { grid-template-columns: repeat(2, 74px); }
+  .notes-app { grid-template-columns: 104px minmax(0, 1fr); }
+  .note-editor { padding: 15px; }
+  .mac-dock { gap: 2px; max-width: calc(100vw - 14px); }
+  .mac-dock-item { width: 50px; height: 50px; }
+  .mac-dock-item > img, .mac-dock-item > .report-ai-icon, .mac-dock-item > .notes-app-icon, .mac-dock-item > .store-app-icon, .mac-dock-item > .reddit-app-icon, .mac-dock-item > .mac-trash-icon { width: 42px; height: 42px; }
+  .mac-dock-divider { height: 37px; }
+  .desktop-welcome { left: 18px; bottom: 94px; }
+}
+
+/*
+ * These rules intentionally use the window content container instead of the
+ * browser viewport. A Finder window and a Calculator window can be side by
+ * side at very different widths, so a viewport media query cannot describe
+ * their actual available space.
+ */
+@container app-window (max-width: 700px) {
+  .notes-app { grid-template-columns: 164px minmax(0, 1fr); }
+  .notes-sidebar { padding: 12px 7px; }
+  .note-editor { padding: 15px 17px; }
+  .note-title { font-size: 21px; line-height: 27px; }
+
+  .calendar-app { padding: 15px; }
+  .calendar-app header { gap: 12px; margin-bottom: 16px; }
+  .calendar-app header strong { font-size: 19px; }
+  .calendar-grid span { padding: 5px; }
+
+  .calculator-app { padding: 14px; }
+  .calculator-display { min-height: 88px; font-size: 40px; }
+  .calculator-grid { gap: 7px; }
+  .calculator-key { font-size: 17px; }
+
+  .wallpaper-preview { padding: 21px 22px 8px; }
+  .wallpaper-preview strong { font-size: 23px; line-height: 29px; }
+  .wallpaper-library { padding: 21px 18px 24px; }
+  .wallpaper-library-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px 8px; }
+}
+
+@container app-window (max-width: 480px) {
+  .notes-app { grid-template-columns: 88px minmax(0, 1fr); }
+  .notes-sidebar { padding: 10px 4px; }
+  .notes-sidebar-heading { padding: 0 4px 9px; }
+  .notes-sidebar-heading strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .notes-sidebar-heading button { width: 23px; height: 23px; flex: 0 0 23px; }
+  .note-list-item { gap: 3px; padding: 8px 6px; }
+  .note-list-item strong, .note-list-item span { font-size: 10px; }
+  .note-editor { padding: 13px 12px; }
+  .note-editor header { flex-wrap: wrap; gap: 3px 9px; margin-bottom: 13px; line-height: 14px; }
+  .note-title { font-size: 18px; line-height: 24px; }
+  .note-editor textarea { margin-top: 10px; font-size: 13px; line-height: 21px; }
+
+  .calendar-app { padding: 11px; }
+  .calendar-app header { align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+  .calendar-app header strong { font-size: 16px; line-height: 21px; }
+  .calendar-app header > div:last-child { flex: 0 0 auto; }
+  .calendar-app header button { min-width: 25px; height: 25px; padding: 0 5px; font-size: 9px; }
+  .calendar-weekdays span { padding-bottom: 6px; font-size: 8px; }
+  .calendar-grid span { padding: 4px 3px; font-size: 10px; }
+
+  .calculator-app { padding: 10px; }
+  .calculator-display { min-height: 75px; padding-bottom: 10px; font-size: 34px; }
+  .calculator-grid { gap: 5px; }
+  .calculator-key { font-size: 15px; }
+  .calculator-key.zero { padding-left: 18px; }
+
+  .wallpaper-preview { padding: 15px 14px 7px; }
+  .wallpaper-preview > div { margin-top: 12px; }
+  .wallpaper-preview strong { font-size: 20px; line-height: 25px; }
+  .wallpaper-preview span { font-size: 12px; }
+  .wallpaper-preview label { align-items: flex-start; gap: 8px; margin-top: 14px; font-size: 11px; line-height: 15px; }
+  .wallpaper-library { padding: 17px 13px 20px; }
+  .wallpaper-library h2 { margin-bottom: 11px; font-size: 20px; line-height: 26px; }
+  .wallpaper-library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 7px; }
+  .wallpaper-library-grid button { gap: 4px; border-width: 2px; border-radius: 10px; }
+  .wallpaper-library-grid span { font-size: 10px; }
+
+  .trash-app span { width: 62px; height: 62px; border-radius: 15px; }
+  .trash-app strong { margin-top: 11px; font-size: 13px; }
+  .trash-app p { max-width: 190px; margin-top: 5px; text-align: center; line-height: 15px; }
+}
+
+@container app-window (max-width: 340px) {
+  .calendar-app header > div:last-child button:nth-child(2) { max-width: 27px; overflow: hidden; padding-inline: 3px; text-overflow: clip; white-space: nowrap; }
+  .calendar-grid span { padding-inline: 2px; }
+  .calculator-display { font-size: 30px; }
+  .calculator-key { font-size: 14px; }
+}
