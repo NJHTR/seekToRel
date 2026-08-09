@@ -119,6 +119,7 @@ public final class ReportTaskHandler implements TaskHandler {
     public static final String TYPE = "report-task";
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportTaskHandler.class);
     private static final String DEFAULT_WORKFLOW = "report";
+    private static final Instant PRECHECK_POLICY_EXPIRES_AT = Instant.parse("2099-12-31T23:59:59Z");
     private static final int MAX_PAYLOAD_FIELDS = 32;
     private static final int MAX_TRANSITION_RETRIES = 4;
     private static final int MAX_EXPORT_BYTES = 50 * 1024 * 1024;
@@ -760,28 +761,24 @@ public final class ReportTaskHandler implements TaskHandler {
 
     private PrecheckBundle buildPrechecks(ReportTaskPayload payload, Document document,
                                           List<? extends Agent> agents) {
-        String sourceDigest = payload.sha256() == null
-                ? Sha256Digest.ofText(payload.documentObjectKey()).value()
-                : payload.sha256().toLowerCase(Locale.ROOT);
+        StoredObject source = sourceReference(payload, document.id());
+        String sourceDigest = source.sha256();
         String canonicalInput = CanonicalJson.encode(Map.of(
                 "taskId", payload.taskId(), "tenantId", payload.tenantId().value(),
-                "documentId", document.id(), "sourceObjectKey", payload.documentObjectKey(),
-                "sourceDigest", sourceDigest, "mediaType", payload.mediaType() == null ? "" : payload.mediaType(),
-                "size", Math.max(0L, payload.size())));
+                "documentId", document.id(), "sourceObjectKey", source.objectKey(),
+                "sourceDigest", sourceDigest, "mediaType", source.mediaType(), "size", source.size()));
         Sha256Digest inputDigest = Sha256Digest.ofText(canonicalInput);
-        SnapshotRef source = new SnapshotRef("source", payload.documentObjectKey(),
-                payload.mediaType() == null ? "application/octet-stream" : payload.mediaType(),
-                Math.max(0L, payload.size()), new Sha256Digest(sourceDigest));
+        SnapshotRef sourceRef = new SnapshotRef("source", source.objectKey(), source.mediaType(), source.size(), new Sha256Digest(sourceDigest));
         Instant createdAt = precheckTimeSource.now();
         InputSnapshot snapshot = new InputSnapshot(1,
                 new SnapshotId("snapshot-" + inputDigest.value().substring(0, 16)), payload.tenantId(),
-                List.of(source), inputDigest, List.of(), createdAt,
+                List.of(sourceRef), inputDigest, List.of(), createdAt,
                 Map.of("source", "report-task"));
         Map<String, PrecheckResult> receipts = new LinkedHashMap<>();
         for (Agent agent : agents) {
             PrecheckRequest request = new PrecheckRequest(payload.tenantId(), new TaskId(payload.taskId()),
                     "agent-pipeline", new AgentId(agent.type()), snapshot, canonicalInput, "text/plain", "1.0",
-                    List.of(), precheckRulePack, ContextBudget.defaults(), List.of(), createdAt.plusSeconds(3600));
+                    List.of(), precheckRulePack, ContextBudget.defaults(), List.of(), PRECHECK_POLICY_EXPIRES_AT);
             PrecheckResult result = precheckEngine.check(request);
             if (result.decision() != PrecheckDecision.ACCEPT || !result.acceptedForAgent()) {
                 throw new NonRetryableTaskException("program precheck blocked agent " + agent.type());

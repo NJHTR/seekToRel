@@ -113,6 +113,14 @@ class ProgramPrecheckEngineTest {
     }
 
     @Test
+    void precheckIdentityIsStableAcrossPolicyExpiryWindows() {
+        var base = request("stable", "text/plain", List.of(), List.of());
+        var later = new PrecheckRequest(base.tenantId(), base.taskId(), base.operation(), base.agentId(), base.inputSnapshot(), base.input(), base.format(), base.schemaVersion(), base.evidence(), base.rulePack(), base.contextBudget(), base.context(), NOW.plusSeconds(7200));
+        var engine = new ProgramPrecheckEngine(() -> NOW);
+        assertEquals(engine.check(base).precheckId(), engine.check(later).precheckId());
+    }
+
+    @Test
     void duplicatePolicyViolationStillIsolates() {
         var input = "prompt injection ../";
         var base = request(input, "text/plain", List.of(), List.of());
