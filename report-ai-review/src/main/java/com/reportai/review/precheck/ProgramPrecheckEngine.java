@@ -35,8 +35,10 @@ public final class ProgramPrecheckEngine {
         ContextProjection projection=new ContextProjection(bounded,chars,tokens,projectionDigest);
         int score=Math.min(100,findings.stream().mapToInt(PrecheckFinding::scoreImpact).sum()); boolean ambiguous=findings.stream().anyMatch(f->f.severity()==PrecheckSeverity.WARNING)&&score<80; RiskAssessment risk=RiskAssessment.from(score,ambiguous);
         PrecheckDecision decision; PrecheckRoute route;
-        if (request.priorInputDigests().contains(normalizedDigest)) { decision=PrecheckDecision.DEDUPLICATE; route=PrecheckRoute.DEDUPLICATE; }
-        else if (cross>0 || findings.stream().anyMatch(f->f.code().equals("POLICY_BLOCK"))) { decision=PrecheckDecision.ISOLATE; route=PrecheckRoute.ISOLATE; } else if (missing>0) { decision=PrecheckDecision.WAITING_FOR_INPUT; route=PrecheckRoute.WAITING_FOR_INPUT; } else if (mismatch>0 || expired>0) { decision=PrecheckDecision.RECOVERY; route=PrecheckRoute.RECOVERY; } else if (score>=80) { decision=PrecheckDecision.REJECT; route=PrecheckRoute.REJECT; } else if (ambiguous) { decision=PrecheckDecision.HUMAN_REVIEW; route=PrecheckRoute.HUMAN_REVIEW; } else { decision=PrecheckDecision.ACCEPT; route=PrecheckRoute.AGENT; }
+        boolean hardBlock = cross > 0 || findings.stream().anyMatch(f -> f.code().equals("POLICY_BLOCK"));
+        if (hardBlock) { decision=PrecheckDecision.ISOLATE; route=PrecheckRoute.ISOLATE; }
+        else if (request.priorInputDigests().contains(normalizedDigest)) { decision=PrecheckDecision.DEDUPLICATE; route=PrecheckRoute.DEDUPLICATE; }
+        else if (missing>0) { decision=PrecheckDecision.WAITING_FOR_INPUT; route=PrecheckRoute.WAITING_FOR_INPUT; } else if (mismatch>0 || expired>0) { decision=PrecheckDecision.RECOVERY; route=PrecheckRoute.RECOVERY; } else if (score>=80) { decision=PrecheckDecision.REJECT; route=PrecheckRoute.REJECT; } else if (ambiguous) { decision=PrecheckDecision.HUMAN_REVIEW; route=PrecheckRoute.HUMAN_REVIEW; } else { decision=PrecheckDecision.ACCEPT; route=PrecheckRoute.AGENT; }
         findings.sort(Comparator.naturalOrder());
         String id=normalizedDigest.value().substring(0,16)+"-"+request.rulePack().digest().value().substring(0,16);
         return new PrecheckResult(1,id,request.tenantId(),request.taskId(),request.operation(),request.agentId(),request.inputSnapshot(),original,normalizedDigest,request.rulePack(),findings,evidence,risk,projection,route,decision,now);

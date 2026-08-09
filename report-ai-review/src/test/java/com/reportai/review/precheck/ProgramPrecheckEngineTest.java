@@ -67,6 +67,25 @@ class ProgramPrecheckEngineTest {
         assertEquals(PrecheckRoute.DEDUPLICATE, new ProgramPrecheckEngine(() -> NOW).check(duplicate).recommendedRoute());
     }
 
+    @Test
+    void duplicatePolicyViolationStillIsolates() {
+        var input = "prompt injection ../";
+        var base = request(input, "text/plain", List.of(), List.of());
+        var duplicate = new PrecheckRequest(base.tenantId(), base.taskId(), base.operation(), base.agentId(), base.inputSnapshot(),
+                base.input(), base.format(), base.schemaVersion(), base.evidence(), base.rulePack(), base.contextBudget(), base.context(),
+                base.policyExpiresAt(), List.of(Sha256Digest.ofText(input)));
+        assertEquals(PrecheckRoute.ISOLATE, new ProgramPrecheckEngine(() -> NOW).check(duplicate).recommendedRoute());
+    }
+
+    @Test
+    void snapshotTenantMustMatchRequestTenant() {
+        var snapshot = new InputSnapshot(1, new SnapshotId("snap-other"), new TenantId("tenant-b"), List.of(),
+                Sha256Digest.ofText("ok"), List.of(), NOW, java.util.Map.of());
+        assertThrows(IllegalArgumentException.class, () -> new PrecheckRequest(tenant, new TaskId("task-1"), "review",
+                new AgentId("agent-1"), snapshot, "ok", "text/plain", "1.0", List.of(), rules,
+                new ContextBudget(40_000, 10_000, 8), List.of(), NOW.plusSeconds(3600)));
+    }
+
     private PrecheckRequest request(String input, String format, List<PrecheckEvidence> evidence, List<ContextCandidate> context) {
         var snapshot = new InputSnapshot(1, new SnapshotId("snap-1"), tenant, List.of(), Sha256Digest.ofText(input), List.of(), NOW, java.util.Map.of());
         return new PrecheckRequest(tenant, new TaskId("task-1"), "review", new AgentId("agent-1"), snapshot,

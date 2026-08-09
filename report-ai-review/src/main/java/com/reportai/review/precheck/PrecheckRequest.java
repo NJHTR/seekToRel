@@ -12,6 +12,7 @@ public record PrecheckRequest(TenantId tenantId, TaskId taskId, String operation
                               List<Sha256Digest> priorInputDigests) {
     public PrecheckRequest {
         tenantId = Objects.requireNonNull(tenantId, "tenantId"); taskId = Objects.requireNonNull(taskId, "taskId"); agentId = Objects.requireNonNull(agentId, "agentId"); inputSnapshot = Objects.requireNonNull(inputSnapshot, "inputSnapshot");
+        if (!tenantId.equals(inputSnapshot.tenantId())) throw new IllegalArgumentException("input snapshot tenant mismatch");
         operation = text(operation, "operation", 128); input = Objects.requireNonNull(input, "input"); format = text(format, "format", 64); schemaVersion = text(schemaVersion, "schemaVersion", 32);
         evidence = evidence == null ? List.of() : List.copyOf(evidence); rulePack = Objects.requireNonNull(rulePack, "rulePack"); contextBudget = contextBudget == null ? ContextBudget.defaults() : contextBudget; context = context == null ? List.of() : List.copyOf(context); policyExpiresAt = Objects.requireNonNull(policyExpiresAt, "policyExpiresAt"); priorInputDigests = priorInputDigests == null ? List.of() : List.copyOf(priorInputDigests);
     }
