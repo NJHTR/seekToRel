@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DefaultAgentOrchestratorTest {
     @Test
     void mergesOutputsAndStopsOnWaiting() {
-        AgentContext context = new AgentContext("task-1", new TenantId("tenant-1"), Map.of("input", "x"),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentContext context = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline", Map.of("input", "x"), null, null);
         Agent first = new Agent() {
             public String type() { return "first"; }
             public AgentResult execute(AgentContext ignored) {
@@ -28,7 +28,7 @@ class DefaultAgentOrchestratorTest {
                 return new AgentResult(AgentResult.Status.WAITING, Map.of("b", 2), "waiting");
             }
         };
-        AgentResult result = new DefaultAgentOrchestrator().execute(context, List.of(first, second));
+        AgentResult result = new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()).execute(context, List.of(first, second));
         assertEquals(AgentResult.Status.WAITING, result.status());
         assertEquals(1, result.outputs().get("a"));
         assertEquals(List.of("first", "second"), result.outputs().get("completedAgents"));
@@ -37,8 +37,8 @@ class DefaultAgentOrchestratorTest {
     @Test
     void preservesEphemeralAttachmentResolverForEachAgentStep() {
         ChatContentPart image = ChatContentPart.image("image/png", new byte[]{1});
-        AgentContext context = new AgentContext("task-vision", new TenantId("tenant-1"), Map.of(),
-                null, null, Map.of(), (agent, state) -> List.of(image));
+        AgentContext base = AgentPrecheckFixtures.context("task-vision", new TenantId("tenant-1"), "pipeline");
+        AgentContext context = new AgentContext(base.taskId(), base.tenantId(), base.state(), null, null, Map.of(), (agent, state) -> List.of(image), Set.of(), base.inputSnapshot(), base.precheckResult(), base.precheckReceipts());
         Agent agent = new Agent() {
             @Override
             public String type() {
@@ -52,7 +52,7 @@ class DefaultAgentOrchestratorTest {
             }
         };
 
-        AgentResult result = new DefaultAgentOrchestrator().execute(context, List.of(agent));
+        AgentResult result = new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()).execute(context, List.of(agent));
 
         assertEquals(AgentResult.Status.COMPLETED, result.status());
         assertEquals(true, result.outputs().get("ok"));

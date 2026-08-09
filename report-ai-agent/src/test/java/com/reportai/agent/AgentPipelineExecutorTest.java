@@ -38,9 +38,8 @@ class AgentPipelineExecutorTest {
                         Map.of("secondCalls", calls), calls == 1 ? "waiting for runtime" : "done");
             }
         };
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(), repository);
-        AgentContext context = new AgentContext("task-1", new TenantId("tenant-1"), Map.of("input", "x"),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()), repository, AgentPrecheckFixtures.guard());
+        AgentContext context = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline", Map.of("input", "x"), null, null);
 
         AgentPipelineResult firstStep = executor.run("pipeline-1", context, List.of(first, second));
         assertEquals(AgentPipelineStatus.RUNNING, firstStep.status());
@@ -63,10 +62,9 @@ class AgentPipelineExecutorTest {
 
     @Test
     void rejectsRuntimeAgentListThatCannotSafelyResumeCheckpoint() {
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(),
-                new InMemoryAgentPipelineRepository());
-        AgentContext context = new AgentContext("task-1", new TenantId("tenant-1"), Map.of(),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()),
+                new InMemoryAgentPipelineRepository(), AgentPrecheckFixtures.guard());
+        AgentContext context = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline");
         executor.start("pipeline-1", context, List.of(agent("first", AgentResult.Status.COMPLETED, Map.of())));
         assertThrows(IllegalArgumentException.class,
                 () -> executor.run("pipeline-1", context, List.of(agent("different", AgentResult.Status.COMPLETED,
@@ -89,16 +87,13 @@ class AgentPipelineExecutorTest {
                 return new AgentResult(AgentResult.Status.COMPLETED, Map.of("execution", "ok"), "done");
             }
         };
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(), repository);
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()), repository, AgentPrecheckFixtures.guard());
 
-        AgentContext initial = new AgentContext("task-1", new TenantId("tenant-1"), Map.of(),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentContext initial = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline");
         AgentPipelineResult coderStep = executor.run("pipeline-1", initial, List.of(coder, runtime));
         assertEquals(AgentPipelineStatus.RUNNING, coderStep.status());
 
-        AgentContext next = new AgentContext("task-1", new TenantId("tenant-1"),
-                Map.of("runtimeRequest", Map.of("source", "print(1)")),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentContext next = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline", Map.of("runtimeRequest", Map.of("source", "print(1)")), null, null);
         AgentPipelineResult runtimeStep = executor.run("pipeline-1", next, List.of(coder, runtime));
         assertEquals(AgentPipelineStatus.COMPLETED, runtimeStep.status());
         assertEquals("ok", runtimeStep.checkpoint().state().get("execution"));
@@ -129,10 +124,10 @@ class AgentPipelineExecutorTest {
                         : new AgentResult(AgentResult.Status.COMPLETED, Map.of("reviewPassed", true), "passed");
             }
         };
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(), repository);
-        AgentContext context = new AgentContext("task-1", tenant, Map.of("document", document),
-                (LlmProvider) null, (ToolRegistry) null, Map.of(),
-                ChatAttachmentResolver.none(), Set.of("document"));
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()), repository, AgentPrecheckFixtures.guard());
+        AgentContext baseContext = AgentPrecheckFixtures.context("task-1", tenant, "pipeline", Map.of("document", document), null, null);
+        AgentContext context = new AgentContext(baseContext.taskId(), baseContext.tenantId(), baseContext.state(), null, null, Map.of(),
+                ChatAttachmentResolver.none(), Set.of("document"), baseContext.inputSnapshot(), baseContext.precheckResult(), baseContext.precheckReceipts());
 
         AgentPipelineResult first = executor.run("pipeline-1", context, List.of(reviewer));
         assertEquals(AgentPipelineStatus.FAILED, first.status());
@@ -154,9 +149,8 @@ class AgentPipelineExecutorTest {
         Agent preflight = agent("preflight", AgentResult.Status.COMPLETED,
                 Map.of("preflight", Map.of("accepted", true, "manifestDigest", digest)));
         Agent runtime = agent("runtime", AgentResult.Status.COMPLETED, Map.of("execution", "ok"));
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(), repository);
-        AgentContext context = new AgentContext("task-1", new TenantId("tenant-1"), Map.of(),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()), repository, AgentPrecheckFixtures.guard());
+        AgentContext context = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline");
 
         AgentPipelineResult result = executor.run("pipeline-1", context, List.of(coder, preflight, runtime));
         assertEquals(AgentPipelineStatus.RUNNING, result.status());
@@ -189,9 +183,8 @@ class AgentPipelineExecutorTest {
         Agent cleanup = agent("cleanup", AgentResult.Status.COMPLETED,
                 Map.of("cleanup", Map.of("cleaned", true)));
         List<Agent> agents = List.of(coder, preflight, installer, execution, cleanup);
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(), repository);
-        AgentContext context = new AgentContext("task-1", new TenantId("tenant-1"), Map.of(),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()), repository, AgentPrecheckFixtures.guard());
+        AgentContext context = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline");
 
         executor.run("pipeline-1", context, agents);
         executor.run("pipeline-1", context, agents);
@@ -228,9 +221,8 @@ class AgentPipelineExecutorTest {
             }
         };
         List<Agent> agents = List.of(coder, preflight, installer, execution);
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(), repository);
-        AgentContext context = new AgentContext("task-1", new TenantId("tenant-1"), Map.of(),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()), repository, AgentPrecheckFixtures.guard());
+        AgentContext context = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline");
 
         executor.run("pipeline-1", context, agents);
         executor.run("pipeline-1", context, agents);
@@ -257,9 +249,8 @@ class AgentPipelineExecutorTest {
                 agent("execution", AgentResult.Status.COMPLETED, Map.of()),
                 agent("artifact-persistence", AgentResult.Status.COMPLETED, Map.of()),
                 agent("cleanup", AgentResult.Status.COMPLETED, Map.of()));
-        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(), repository);
-        AgentContext context = new AgentContext("task-1", new TenantId("tenant-1"), Map.of(),
-                (LlmProvider) null, (ToolRegistry) null);
+        AgentPipelineExecutor executor = new AgentPipelineExecutor(new DefaultAgentOrchestrator(AgentExecutionPolicy.safeDefaults(), AgentPrecheckFixtures.guard()), repository, AgentPrecheckFixtures.guard());
+        AgentContext context = AgentPrecheckFixtures.context("task-1", new TenantId("tenant-1"), "pipeline");
         AgentPipelineResult result = executor.run("pipeline-1", context, agents);
         assertEquals(List.of("coder", "preflight", "installer", "execution", "artifact-persistence", "cleanup"),
                 result.checkpoint().agentTypes());

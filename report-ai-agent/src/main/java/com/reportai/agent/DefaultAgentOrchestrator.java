@@ -9,13 +9,19 @@ import java.util.Objects;
 /** Deterministic, bounded orchestration. Agents can only communicate through state and declared ports. */
 public final class DefaultAgentOrchestrator implements AgentOrchestrator {
     private final AgentExecutionPolicy policy;
+    private final AgentPrecheckGuard precheckGuard;
 
     public DefaultAgentOrchestrator() {
-        this(AgentExecutionPolicy.safeDefaults());
+        this(AgentExecutionPolicy.safeDefaults(), new AgentPrecheckGuard());
     }
 
     public DefaultAgentOrchestrator(AgentExecutionPolicy policy) {
+        this(policy, new AgentPrecheckGuard());
+    }
+
+    public DefaultAgentOrchestrator(AgentExecutionPolicy policy, AgentPrecheckGuard precheckGuard) {
         this.policy = Objects.requireNonNull(policy, "policy");
+        this.precheckGuard = Objects.requireNonNull(precheckGuard, "precheckGuard");
     }
 
     @Override
@@ -42,7 +48,14 @@ public final class DefaultAgentOrchestrator implements AgentOrchestrator {
             // multimodal request into a text-only request.
             AgentContext stepContext = new AgentContext(context.taskId(), context.tenantId(), state,
                     context.llmProvider(), context.toolRegistry(), context.llmOptions(),
-                    context.attachmentResolver(), context.authoritativeStateKeys());
+                    context.attachmentResolver(), context.authoritativeStateKeys(), context.inputSnapshot(), context.precheckResult(), context.precheckReceipts());
+            AgentPrecheckGuard.Validation validation = precheckGuard.validate(stepContext, agent.type());
+            if (!validation.allowed()) {
+                Map<String, Object> denied = new LinkedHashMap<>(state);
+                denied.put("precheckErrorCode", validation.code());
+                denied.put("precheckRoute", validation.route().name());
+                return new AgentResult(AgentResult.Status.FAILED, Map.copyOf(denied), validation.code());
+            }
             AgentResult result;
             try {
                 result = agent.execute(stepContext);

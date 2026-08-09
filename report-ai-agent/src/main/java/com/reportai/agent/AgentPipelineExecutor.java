@@ -14,10 +14,17 @@ import java.util.Objects;
 public final class AgentPipelineExecutor {
     private final AgentOrchestrator orchestrator;
     private final AgentPipelineRepository repository;
+    private final AgentPrecheckGuard precheckGuard;
 
     public AgentPipelineExecutor(AgentOrchestrator orchestrator, AgentPipelineRepository repository) {
+        this(orchestrator, repository, new AgentPrecheckGuard());
+    }
+
+    public AgentPipelineExecutor(AgentOrchestrator orchestrator, AgentPipelineRepository repository,
+                                 AgentPrecheckGuard precheckGuard) {
         this.orchestrator = Objects.requireNonNull(orchestrator, "orchestrator");
         this.repository = Objects.requireNonNull(repository, "repository");
+        this.precheckGuard = Objects.requireNonNull(precheckGuard, "precheckGuard");
     }
 
     /** Creates a cursor for a new task without executing user code. */
@@ -76,7 +83,16 @@ public final class AgentPipelineExecutor {
         mergeRuntimeState(executionState, runtimeContext);
         AgentContext stepContext = new AgentContext(checkpoint.taskId(), checkpoint.tenantId(), executionState,
                 runtimeContext.llmProvider(), runtimeContext.toolRegistry(), runtimeContext.llmOptions(),
-                runtimeContext.attachmentResolver(), runtimeContext.authoritativeStateKeys());
+                runtimeContext.attachmentResolver(), runtimeContext.authoritativeStateKeys(), runtimeContext.inputSnapshot(), runtimeContext.precheckResult(), runtimeContext.precheckReceipts());
+        AgentPrecheckGuard.Validation validation = precheckGuard.validate(stepContext, agents.get(index).type());
+        if (!validation.allowed()) {
+            Map<String, Object> state = new java.util.LinkedHashMap<>(checkpoint.state());
+            state.put("precheckErrorCode", validation.code());
+            state.put("precheckRoute", validation.route().name());
+            AgentPipelineCheckpoint denied = update(checkpoint, AgentPipelineStatus.FAILED, index, state, validation.code());
+            return new AgentPipelineResult(AgentPipelineStatus.FAILED, denied,
+                    new AgentResult(AgentResult.Status.FAILED, state, validation.code()));
+        }
         AgentResult result = orchestrator.execute(stepContext, List.of(agents.get(index)));
         if (result == null) {
             result = new AgentResult(AgentResult.Status.FAILED, Map.of(), "agent returned no result");

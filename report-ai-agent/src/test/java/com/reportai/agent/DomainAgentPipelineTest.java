@@ -33,12 +33,11 @@ class DomainAgentPipelineTest {
                 List.of(new DocumentBlock(BlockType.TITLE, "Sorting experiment", List.of(), null),
                         new DocumentBlock(BlockType.PARAGRAPH, "Experiment result", List.of(), null)),
                 List.of(), List.of());
-        AgentContext context = new AgentContext("task-1", tenant,
+        AgentContext context = AgentPrecheckFixtures.context("task-1", tenant, "pipeline",
                 Map.of("document", document, "language", "python",
-                        "runtimeRequest", Map.of("entryPoint", "main.py")),
-                new FakeLlm(), new FakeTools());
+                        "runtimeRequest", Map.of("entryPoint", "main.py")), new FakeLlm(), new FakeTools());
 
-        AgentResult result = new DefaultAgentOrchestrator(new AgentExecutionPolicy(8, 128, 256))
+        AgentResult result = new DefaultAgentOrchestrator(new AgentExecutionPolicy(8, 128, 256), AgentPrecheckFixtures.guard())
                 .execute(context, List.of(new PlannerAgent(), new CoderAgent(), new RuntimeAgent(),
                         new DocumentAgent(), new ReviewerAgent(new CompletenessReviewEngine())));
 
