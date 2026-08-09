@@ -73,7 +73,8 @@ public final class ReviewWorkflowGate {
 
     private static ReviewCase applyEvent(ReviewCase current, ReviewEvent event) {
         if (current.version() + 1 != event.version() || current.state() != event.from()
-                || !current.id().equals(event.caseId()) || !allowedTarget(event.action(), event.to())) {
+                || !current.id().equals(event.caseId())
+                || !allowedTransition(event.action(), event.from(), event.to())) {
             throw new ReviewWorkflowException("invalid review event stream");
         }
         int reentries = current.reentryCount() + (event.action() == ReviewAction.REENTER_FIRST_REVIEW
@@ -85,14 +86,22 @@ public final class ReviewWorkflowGate {
                 event.evaluationId(), event.version(), current.expectedOperation(), current.expectedAgentId());
     }
 
-    private static boolean allowedTarget(ReviewAction action, ReviewState target) {
+    private static boolean allowedTransition(ReviewAction action, ReviewState source, ReviewState target) {
         return switch (action) {
-            case SUBMIT_FIRST_REVIEW -> target == ReviewState.ACCEPTANCE || target == ReviewState.REJECTION || target == ReviewState.RECOVERY_PENDING;
-            case SUBMIT_ACCEPTANCE, SUBMIT_REJECTION -> target == ReviewState.SECOND_REVIEW_PENDING || target == ReviewState.RECOVERY_PENDING;
-            case SUBMIT_SECOND_REVIEW -> target == ReviewState.APPROVED || target == ReviewState.REJECTED || target == ReviewState.RECOVERY_PENDING;
-            case REQUEST_RECOVERY -> target == ReviewState.RECOVERY_PENDING;
-            case COMPLETE_RECOVERY -> target == ReviewState.REENTRY_PENDING || target == ReviewState.EXHAUSTED;
-            case REENTER_FIRST_REVIEW -> target == ReviewState.FIRST_PASS_PENDING || target == ReviewState.EXHAUSTED;
+            case SUBMIT_FIRST_REVIEW -> source == ReviewState.FIRST_PASS_PENDING
+                    && (target == ReviewState.ACCEPTANCE || target == ReviewState.REJECTION || target == ReviewState.RECOVERY_PENDING);
+            case SUBMIT_ACCEPTANCE -> source == ReviewState.ACCEPTANCE
+                    && (target == ReviewState.SECOND_REVIEW_PENDING || target == ReviewState.RECOVERY_PENDING);
+            case SUBMIT_REJECTION -> source == ReviewState.REJECTION
+                    && (target == ReviewState.SECOND_REVIEW_PENDING || target == ReviewState.RECOVERY_PENDING);
+            case SUBMIT_SECOND_REVIEW -> source == ReviewState.SECOND_REVIEW_PENDING
+                    && (target == ReviewState.APPROVED || target == ReviewState.REJECTED || target == ReviewState.RECOVERY_PENDING);
+            case REQUEST_RECOVERY -> source != null && !source.terminal() && source != ReviewState.RECOVERY_PENDING
+                    && target == ReviewState.RECOVERY_PENDING;
+            case COMPLETE_RECOVERY -> source == ReviewState.RECOVERY_PENDING
+                    && (target == ReviewState.REENTRY_PENDING || target == ReviewState.EXHAUSTED);
+            case REENTER_FIRST_REVIEW -> source == ReviewState.REENTRY_PENDING
+                    && (target == ReviewState.FIRST_PASS_PENDING || target == ReviewState.EXHAUSTED);
             case PRECHECK, ESCALATE -> false;
         };
     }
