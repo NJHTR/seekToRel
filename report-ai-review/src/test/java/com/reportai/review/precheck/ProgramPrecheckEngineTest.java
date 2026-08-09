@@ -51,7 +51,11 @@ class ProgramPrecheckEngineTest {
     @Test
     void unsupportedFormatAndOversizedInputAreRejected() {
         var input = "x".repeat(200_000);
-        assertThrows(IllegalArgumentException.class, () -> request(input, "application/octet-stream", List.of(), List.of()));
+        var result = new ProgramPrecheckEngine(() -> NOW).check(request(input, "application/octet-stream", List.of(), List.of()));
+        assertEquals(PrecheckDecision.REJECT, result.decision());
+        assertTrue(result.findings().stream().anyMatch(f -> f.code().equals("FORMAT_UNSUPPORTED")));
+        assertTrue(result.findings().stream().anyMatch(f -> f.code().equals("INPUT_TOO_LARGE")));
+        assertThrows(IllegalArgumentException.class, () -> request("x".repeat(1_000_001), "text/plain", List.of(), List.of()));
     }
 
     @Test
