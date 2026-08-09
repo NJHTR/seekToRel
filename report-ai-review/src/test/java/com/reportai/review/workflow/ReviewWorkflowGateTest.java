@@ -155,6 +155,29 @@ class ReviewWorkflowGateTest {
                 .replay("case-1", tenant));
     }
 
+    @Test
+    void replayRejectsPrematureRecoveryExhaustion() {
+        InMemoryReviewCaseRepository delegate = new InMemoryReviewCaseRepository();
+        ReviewWorkflowGate gate = new ReviewWorkflowGate(delegate, fixedClock());
+        delegate.create(ReviewCase.create("case-1", receipt, 1, 1));
+        gate.handle(command("c-1", "i-1", 0, ReviewAction.SUBMIT_FIRST_REVIEW,
+                evaluation("e-1", EvaluationDecision.REVISE, null, NOW)));
+        ReviewCaseRepository tampered = new ReviewCaseRepository() {
+            @Override public ReviewCase create(ReviewCase value) { return delegate.create(value); }
+            @Override public java.util.Optional<ReviewCase> find(String id, TenantId owner) { return delegate.find(id, owner); }
+            @Override public AppendResult append(ReviewCase expected, ReviewCase next, ReviewEvent event) { return delegate.append(expected, next, event); }
+            @Override public List<ReviewEvent> events(String id, TenantId owner) {
+                ReviewEvent first = delegate.events(id, owner).get(0);
+                ReviewEvent forged = new ReviewEvent(new EventId("forged-event"), new CommandId("forged-command"),
+                        "forged-key", id, ReviewAction.COMPLETE_RECOVERY, ReviewState.RECOVERY_PENDING,
+                        ReviewState.EXHAUSTED, null, first.version() + 1, NOW);
+                return List.of(first, forged);
+            }
+        };
+        assertThrows(ReviewWorkflowException.class, () -> new ReviewWorkflowGate(tampered, fixedClock())
+                .replay("case-1", tenant));
+    }
+
     private ReviewCommand command(String id, String key, long version, ReviewAction action, ReviewEvaluation evaluation) {
         return new ReviewCommand(new CommandId(id), key, "case-1", tenant, version, action, evaluation);
     }

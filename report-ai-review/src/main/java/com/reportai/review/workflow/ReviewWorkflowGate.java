@@ -64,17 +64,21 @@ public final class ReviewWorkflowGate {
         ReviewCase rebuilt = new ReviewCase(state.id(), state.tenantId(), state.taskId(), state.inputSnapshot(), state.precheckId(),
                 ReviewState.FIRST_PASS_PENDING, 0, 0, state.maxReentries(), state.maxRecoveryAttempts(), null, 0,
                 state.expectedOperation(), state.expectedAgentId());
-        for (ReviewEvent event : repository.events(caseId, tenantId)) {
-            rebuilt = applyEvent(rebuilt, event);
+        List<ReviewEvent> history = repository.events(caseId, tenantId);
+        for (int index = 0; index < history.size(); index++) {
+            ReviewEvent event = history.get(index);
+            rebuilt = applyEvent(rebuilt, event, history.subList(0, index));
         }
         if (!rebuilt.equals(state)) throw new ReviewWorkflowException("review event replay diverged");
         return rebuilt;
     }
 
-    private static ReviewCase applyEvent(ReviewCase current, ReviewEvent event) {
+    private static ReviewCase applyEvent(ReviewCase current, ReviewEvent event, List<ReviewEvent> history) {
         if (current.version() + 1 != event.version() || current.state() != event.from()
                 || !current.id().equals(event.caseId())
-                || !allowedTransition(event.action(), event.from(), event.to())) {
+                || !allowedTransition(event.action(), event.from(), event.to())
+                || !budgetAllows(current, event)
+                || !branchAllows(history, event)) {
             throw new ReviewWorkflowException("invalid review event stream");
         }
         int reentries = current.reentryCount() + (event.action() == ReviewAction.REENTER_FIRST_REVIEW
@@ -84,6 +88,28 @@ public final class ReviewWorkflowGate {
         return new ReviewCase(current.id(), current.tenantId(), current.taskId(), current.inputSnapshot(), current.precheckId(),
                 event.to(), reentries, recoveries, current.maxReentries(), current.maxRecoveryAttempts(),
                 event.evaluationId(), event.version(), current.expectedOperation(), current.expectedAgentId());
+    }
+
+    private static boolean budgetAllows(ReviewCase current, ReviewEvent event) {
+        if (event.action() == ReviewAction.COMPLETE_RECOVERY) {
+            ReviewState expected = current.recoveryAttempts() >= current.maxRecoveryAttempts()
+                    ? ReviewState.EXHAUSTED : ReviewState.REENTRY_PENDING;
+            return event.to() == expected;
+        }
+        if (event.action() == ReviewAction.REENTER_FIRST_REVIEW) {
+            ReviewState expected = current.reentryCount() >= current.maxReentries()
+                    ? ReviewState.EXHAUSTED : ReviewState.FIRST_PASS_PENDING;
+            return event.to() == expected;
+        }
+        return true;
+    }
+
+    private static boolean branchAllows(List<ReviewEvent> history, ReviewEvent event) {
+        if (event.action() != ReviewAction.SUBMIT_SECOND_REVIEW) return true;
+        ReviewAction previous = history.isEmpty() ? null : history.get(history.size() - 1).action();
+        if (previous == ReviewAction.SUBMIT_ACCEPTANCE) return event.to() == ReviewState.APPROVED || event.to() == ReviewState.RECOVERY_PENDING;
+        if (previous == ReviewAction.SUBMIT_REJECTION) return event.to() == ReviewState.REJECTED || event.to() == ReviewState.RECOVERY_PENDING;
+        return false;
     }
 
     private static boolean allowedTransition(ReviewAction action, ReviewState source, ReviewState target) {
