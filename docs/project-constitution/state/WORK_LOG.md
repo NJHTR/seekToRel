@@ -30,3 +30,8 @@ Append entries; do not rewrite history.
 - Independent review findings were addressed: production wiring, per-Agent checkpoint selection, and receipt snapshot tenant binding. Remaining follow-up risk is receipt persistence/source attestation through `PrecheckResultRepository`; current application wiring deterministically recreates and records receipt identity in the durable checkpoint.
 - Verification passed with Java 21 after a separate clean phase: `./mvnw.cmd clean`; `./mvnw.cmd -pl report-ai-review -am test`; `./mvnw.cmd -pl report-ai-agent -am test` (39 Agent tests plus reactor dependencies); `./mvnw.cmd -pl report-ai-application -am test` (application suite and reactor dependencies). The precheck suite includes stable-identity coverage across policy expiry windows.
 - T010 completed. Next unblocked foundation task is `T020-review-workflow`.
+
+## 2026-08-09
+
+- Claimed `T020-review-workflow` on branch `codex/T020-review-workflow/root` after verifying the clean T010 baseline (`1add561`) and reviewing existing evaluation, review, and workflow contracts.
+- Implementation boundary: extend `report-ai-review` with an explicit review workflow aggregate, append-only events, deterministic gate transitions, recovery/re-entry budgets, and contract tests; preserve T010 precheck receipt contracts and existing completeness review APIs.

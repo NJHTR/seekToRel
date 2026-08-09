@@ -1,12 +1,12 @@
 project: nexus-agent-platform
 updated_at: 2026-08-09T09:35:00Z
 constitution_version: 1
-active_task: T010-program-precheck
-status: completed
-branch: main
+active_task: T020-review-workflow
+status: claimed
+branch: codex/T020-review-workflow/root
 owner: codex-root
-started_at: 2026-08-09T08:06:00Z
-claimed_at: 2026-08-09T08:06:00Z
+started_at: 2026-08-09T09:45:00Z
+claimed_at: 2026-08-09T09:45:00Z
 current_commit: 4e0703f
 owned_paths:
   - report-ai-common/src/main/java/com/reportai/common/contract
@@ -15,7 +15,7 @@ owned_paths:
   - report-ai-review/src/test/java/com/reportai/review/precheck
   - report-ai-agent/src/main/java/com/reportai/agent
   - report-ai-agent/src/test/java/com/reportai/agent
-last_verified_commit: 4e0703f
+last_verified_commit: 1add561
 completed_tasks:
   - T000-foundation-contracts
   - T010-program-precheck
