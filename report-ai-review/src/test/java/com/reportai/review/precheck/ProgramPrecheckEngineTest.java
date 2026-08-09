@@ -51,10 +51,7 @@ class ProgramPrecheckEngineTest {
     @Test
     void unsupportedFormatAndOversizedInputAreRejected() {
         var input = "x".repeat(200_000);
-        var result = new ProgramPrecheckEngine(() -> NOW).check(request(input, "application/octet-stream", List.of(), List.of()));
-        assertEquals(PrecheckDecision.REJECT, result.decision());
-        assertTrue(result.findings().stream().anyMatch(f -> f.code().equals("FORMAT_UNSUPPORTED")));
-        assertTrue(result.findings().stream().anyMatch(f -> f.code().equals("INPUT_TOO_LARGE")));
+        assertThrows(IllegalArgumentException.class, () -> request(input, "application/octet-stream", List.of(), List.of()));
     }
 
     @Test
@@ -102,6 +99,13 @@ class ProgramPrecheckEngineTest {
         var unknownPack = RulePack.of("custom", "1", "policy-1", List.of(new RuleDescriptor("custom.rule", PrecheckStage.RISK, PrecheckSeverity.INFO, "custom", 1)));
         var req = new PrecheckRequest(base.tenantId(), base.taskId(), base.operation(), base.agentId(), base.inputSnapshot(), base.input(), base.format(), base.schemaVersion(), base.evidence(), unknownPack, base.contextBudget(), base.context(), base.policyExpiresAt());
         assertEquals(PrecheckRoute.ISOLATE, new ProgramPrecheckEngine(() -> NOW).check(req).recommendedRoute());
+    }
+
+    @Test
+    void expiryAtCurrentTimeIsIsolated() {
+        var base = request("ok", "text/plain", List.of(), List.of());
+        var expired = new PrecheckRequest(base.tenantId(), base.taskId(), base.operation(), base.agentId(), base.inputSnapshot(), base.input(), base.format(), base.schemaVersion(), base.evidence(), base.rulePack(), base.contextBudget(), base.context(), NOW);
+        assertEquals(PrecheckRoute.ISOLATE, new ProgramPrecheckEngine(() -> NOW).check(expired).recommendedRoute());
     }
 
     @Test
