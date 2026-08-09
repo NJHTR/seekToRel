@@ -93,6 +93,15 @@ public final class AgentPipelineExecutor {
             return new AgentPipelineResult(AgentPipelineStatus.FAILED, denied,
                     new AgentResult(AgentResult.Status.FAILED, state, validation.code()));
         }
+        Object persistedPrecheckId = checkpoint.state().get("precheckId");
+        if (persistedPrecheckId != null && !persistedPrecheckId.equals(stepContext.precheckResult().precheckId())) {
+            Map<String, Object> state = new java.util.LinkedHashMap<>(checkpoint.state());
+            state.put("precheckErrorCode", "PRECHECK_RECEIPT_MISMATCH");
+            state.put("precheckRoute", stepContext.precheckResult().recommendedRoute().name());
+            AgentPipelineCheckpoint denied = update(checkpoint, AgentPipelineStatus.FAILED, index, state, "PRECHECK_RECEIPT_MISMATCH");
+            return new AgentPipelineResult(AgentPipelineStatus.FAILED, denied,
+                    new AgentResult(AgentResult.Status.FAILED, state, "PRECHECK_RECEIPT_MISMATCH"));
+        }
         AgentResult result = orchestrator.execute(stepContext, List.of(agents.get(index)));
         if (result == null) {
             result = new AgentResult(AgentResult.Status.FAILED, Map.of(), "agent returned no result");
@@ -102,6 +111,9 @@ public final class AgentPipelineExecutor {
         // and every previous agent output survive a restart/resume boundary.
         Map<String, Object> state = new java.util.LinkedHashMap<>(checkpoint.state());
         mergeRuntimeState(state, runtimeContext);
+        state.put("precheckId", stepContext.precheckResult().precheckId());
+        state.put("precheckNormalizedInputDigest", stepContext.precheckResult().normalizedInputDigest().value());
+        state.put("precheckRulePackDigest", stepContext.precheckResult().rulePack().digest().value());
         state.putAll(result.outputs());
         List<String> completed = new ArrayList<>();
         completed.addAll(types.subList(0, index));
