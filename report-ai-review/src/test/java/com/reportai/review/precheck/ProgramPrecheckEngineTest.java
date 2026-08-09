@@ -76,6 +76,35 @@ class ProgramPrecheckEngineTest {
     }
 
     @Test
+    void formatSchemaAndBlankInputsNeverEnterAgent() {
+        var format = new ProgramPrecheckEngine(() -> NOW).check(request("ok", "application/octet-stream", List.of(), List.of()));
+        assertEquals(PrecheckRoute.REJECT, format.recommendedRoute());
+        var schema = new ProgramPrecheckEngine(() -> NOW).check(requestWithSchema("ok", "bad schema"));
+        assertEquals(PrecheckRoute.REJECT, schema.recommendedRoute());
+        var blank = new ProgramPrecheckEngine(() -> NOW).check(request(" ", "text/plain", List.of(), List.of()));
+        assertEquals(PrecheckRoute.WAITING_FOR_INPUT, blank.recommendedRoute());
+    }
+
+    @Test
+    void fullIdentityAndContextSummaryAvoidCollisionsAndRawText() {
+        var context = List.of(new ContextCandidate("secret", "credential-secret", 1, evidence("ctx")));
+        var a = new ProgramPrecheckEngine(() -> NOW).check(request("same", "text/plain", List.of(), context));
+        var b0 = request("same", "text/plain", List.of(), context);
+        var bReq = new PrecheckRequest(b0.tenantId(), new TaskId("task-2"), b0.operation(), b0.agentId(), b0.inputSnapshot(), b0.input(), b0.format(), b0.schemaVersion(), b0.evidence(), b0.rulePack(), b0.contextBudget(), b0.context(), b0.policyExpiresAt());
+        var b = new ProgramPrecheckEngine(() -> NOW).check(bReq);
+        assertNotEquals(a.precheckId(), b.precheckId());
+        assertFalse(a.contextProjection().selected().toString().contains("credential-secret"));
+    }
+
+    @Test
+    void unknownRuleIsolated() {
+        var base = request("ok", "text/plain", List.of(), List.of());
+        var unknownPack = RulePack.of("custom", "1", "policy-1", List.of(new RuleDescriptor("custom.rule", PrecheckStage.RISK, PrecheckSeverity.INFO, "custom", 1)));
+        var req = new PrecheckRequest(base.tenantId(), base.taskId(), base.operation(), base.agentId(), base.inputSnapshot(), base.input(), base.format(), base.schemaVersion(), base.evidence(), unknownPack, base.contextBudget(), base.context(), base.policyExpiresAt());
+        assertEquals(PrecheckRoute.ISOLATE, new ProgramPrecheckEngine(() -> NOW).check(req).recommendedRoute());
+    }
+
+    @Test
     void duplicatePolicyViolationStillIsolates() {
         var input = "prompt injection ../";
         var base = request(input, "text/plain", List.of(), List.of());
@@ -98,6 +127,11 @@ class ProgramPrecheckEngineTest {
         var snapshot = new InputSnapshot(1, new SnapshotId("snap-1"), tenant, List.of(), Sha256Digest.ofText(input), List.of(), NOW, java.util.Map.of());
         return new PrecheckRequest(tenant, new TaskId("task-1"), "review", new AgentId("agent-1"), snapshot,
                 input, format, "1.0", evidence, rules, new ContextBudget(40_000, 10_000, 8), context, NOW.plusSeconds(3600));
+    }
+
+    private PrecheckRequest requestWithSchema(String input, String schema) {
+        var snapshot = new InputSnapshot(1, new SnapshotId("snap-1"), tenant, List.of(), Sha256Digest.ofText(input), List.of(), NOW, java.util.Map.of());
+        return new PrecheckRequest(tenant, new TaskId("task-1"), "review", new AgentId("agent-1"), snapshot, input, "text/plain", schema, List.of(), rules, ContextBudget.defaults(), List.of(), NOW.plusSeconds(3600));
     }
 
     private EvidenceRef evidence(String key) { return new EvidenceRef("document", key, Sha256Digest.ofText(key)); }

@@ -2,11 +2,11 @@ package com.reportai.review.precheck;
 
 import com.reportai.common.contract.*;
 import com.reportai.common.time.TimeSource;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
 public final class ProgramPrecheckEngine {
+    private static final Set<String> KNOWN_RULES = Set.of("input.non_blank", "input.max_size", "input.policy", "format.supported", "schema.version", "policy.expired", "evidence.available", "evidence.schema", "evidence.tenant", "evidence.expiry", "context.max_items", "snapshot.digest");
     private final TimeSource timeSource;
     public ProgramPrecheckEngine() { this(TimeSource.systemUtc()); }
     public ProgramPrecheckEngine(TimeSource timeSource) { this.timeSource = Objects.requireNonNull(timeSource, "timeSource"); }
@@ -24,7 +24,7 @@ public final class ProgramPrecheckEngine {
         if (!request.schemaVersion().matches("[0-9]+(?:\\.[0-9]+){0,2}")) findings.add(finding(PrecheckStage.SCHEMA,"schema.version",PrecheckSeverity.ERROR,"SCHEMA_INVALID","Schema version is invalid",40));
         if (now.isAfter(request.policyExpiresAt())) findings.add(finding(PrecheckStage.RISK,"policy.expired",PrecheckSeverity.CRITICAL,"POLICY_EXPIRED","Policy or rule pack is expired",80));
         int missing=0,mismatch=0,cross=0,expired=0,resolved=0;
-        for (PrecheckEvidence e : request.evidence()) { if (!e.tenantId().equals(request.tenantId())) { cross++; continue; } if (!e.available()) { missing++; continue; } if (now.isAfter(e.expiresAt())) { expired++; continue; } if (!e.schemaVersion().equals(request.schemaVersion())) { mismatch++; continue; } resolved++; }
+        for (PrecheckEvidence e : request.evidence()) { if (!e.tenantId().equals(request.tenantId())) { cross++; continue; } if (!e.available()) { missing++; continue; } if (!now.isBefore(e.expiresAt())) { expired++; continue; } if (!e.schemaVersion().equals(request.schemaVersion())) { mismatch++; continue; } resolved++; }
         EvidenceResolution evidence = new EvidenceResolution(request.evidence().size(),resolved,missing,mismatch,cross,expired);
         if (missing > 0) findings.add(finding(PrecheckStage.EVIDENCE,"evidence.available",PrecheckSeverity.WARNING,"EVIDENCE_MISSING","Required evidence is unavailable",30));
         if (mismatch > 0) findings.add(finding(PrecheckStage.EVIDENCE,"evidence.schema",PrecheckSeverity.ERROR,"EVIDENCE_MISMATCH","Evidence schema does not match input",50));
@@ -32,17 +32,18 @@ public final class ProgramPrecheckEngine {
         if (expired > 0) findings.add(finding(PrecheckStage.EVIDENCE,"evidence.expiry",PrecheckSeverity.ERROR,"EVIDENCE_EXPIRED","Evidence has expired",45));
         if (request.context().size() > request.contextBudget().maxItems()) findings.add(finding(PrecheckStage.CONTEXT,"context.max_items",PrecheckSeverity.WARNING,"CONTEXT_TRUNCATED","Context was reduced to the configured item budget",10));
         var selected = request.context().stream().sorted(Comparator.comparingInt(ContextCandidate::priority).reversed().thenComparing(ContextCandidate::key)).limit(request.contextBudget().maxItems()).filter(c -> c.text().length() <= request.contextBudget().maxChars()).toList();
-        var bounded = new ArrayList<ContextCandidate>(); int chars=0,tokens=0; for (ContextCandidate c:selected) { int ct=c.text().length(), tk=(ct+3)/4; if(chars+ct>request.contextBudget().maxChars()||tokens+tk>request.contextBudget().maxTokens()) continue; bounded.add(c); chars+=ct; tokens+=tk; }
-        Sha256Digest projectionDigest=Sha256Digest.ofText(CanonicalJson.encode(bounded.stream().map(c->Map.of("key",c.key(),"text",c.text(),"priority",c.priority(),"evidence",c.evidence().digest().value())).toList()));
+        var bounded = new ArrayList<ContextSummary>(); int chars=0,tokens=0; for (ContextCandidate c:selected) { int ct=c.text().length(), tk=(ct+3)/4; if(chars+ct>request.contextBudget().maxChars()||tokens+tk>request.contextBudget().maxTokens()) continue; bounded.add(new ContextSummary(c.key(), c.evidence().digest(), c.priority(), ct, Sha256Digest.ofText(c.text()))); chars+=ct; tokens+=tk; }
+        Sha256Digest projectionDigest=Sha256Digest.ofText(CanonicalJson.encode(bounded.stream().map(c->Map.of("key",c.key(),"textDigest",c.textDigest().value(),"priority",c.priority(),"chars",c.chars(),"evidence",c.evidenceDigest().value())).toList()));
         ContextProjection projection=new ContextProjection(bounded,chars,tokens,projectionDigest);
+        for (RuleDescriptor rule : request.rulePack().rules()) if (!KNOWN_RULES.contains(rule.id())) findings.add(finding(PrecheckStage.SCHEMA,"rule.known",PrecheckSeverity.CRITICAL,"UNKNOWN_RULE","Rule pack contains an unsupported rule",70));
         int score=Math.min(100,findings.stream().mapToInt(PrecheckFinding::scoreImpact).sum()); boolean ambiguous=findings.stream().anyMatch(f->f.severity()==PrecheckSeverity.WARNING)&&score<80; RiskAssessment risk=RiskAssessment.from(score,ambiguous);
         PrecheckDecision decision; PrecheckRoute route;
-        boolean hardBlock = cross > 0 || findings.stream().anyMatch(f -> f.code().equals("POLICY_BLOCK"));
+        boolean hardBlock = cross > 0 || findings.stream().anyMatch(f -> f.code().equals("POLICY_BLOCK") || f.code().equals("UNKNOWN_RULE"));
         if (hardBlock) { decision=PrecheckDecision.ISOLATE; route=PrecheckRoute.ISOLATE; }
         else if (request.priorInputDigests().contains(normalizedDigest)) { decision=PrecheckDecision.DEDUPLICATE; route=PrecheckRoute.DEDUPLICATE; }
-        else if (missing>0) { decision=PrecheckDecision.WAITING_FOR_INPUT; route=PrecheckRoute.WAITING_FOR_INPUT; } else if (mismatch>0 || expired>0 || findings.stream().anyMatch(f->f.code().equals("SNAPSHOT_STALE"))) { decision=PrecheckDecision.RECOVERY; route=PrecheckRoute.RECOVERY; } else if (score>=80) { decision=PrecheckDecision.REJECT; route=PrecheckRoute.REJECT; } else if (ambiguous) { decision=PrecheckDecision.HUMAN_REVIEW; route=PrecheckRoute.HUMAN_REVIEW; } else { decision=PrecheckDecision.ACCEPT; route=PrecheckRoute.AGENT; }
+        else if (missing>0 || findings.stream().anyMatch(f->f.code().equals("INPUT_BLANK"))) { decision=PrecheckDecision.WAITING_FOR_INPUT; route=PrecheckRoute.WAITING_FOR_INPUT; } else if (mismatch>0 || expired>0 || findings.stream().anyMatch(f->f.code().equals("SNAPSHOT_STALE") || f.code().equals("POLICY_EXPIRED"))) { decision=PrecheckDecision.RECOVERY; route=PrecheckRoute.RECOVERY; } else if (findings.stream().anyMatch(f -> (f.stage() == PrecheckStage.FORMAT_SECURITY || f.stage() == PrecheckStage.SCHEMA) && (f.severity() == PrecheckSeverity.ERROR || f.severity() == PrecheckSeverity.CRITICAL)) || score>=80) { decision=PrecheckDecision.REJECT; route=PrecheckRoute.REJECT; } else if (ambiguous) { decision=PrecheckDecision.HUMAN_REVIEW; route=PrecheckRoute.HUMAN_REVIEW; } else { decision=PrecheckDecision.ACCEPT; route=PrecheckRoute.AGENT; }
         findings.sort(Comparator.naturalOrder());
-        String id=normalizedDigest.value().substring(0,16)+"-"+request.rulePack().digest().value().substring(0,16);
+        String id=Sha256Digest.ofText(CanonicalJson.encode(Map.of("tenant",request.tenantId().value(),"task",request.taskId().value(),"operation",request.operation(),"agent",request.agentId().value(),"schema",request.schemaVersion(),"policyExpiry",request.policyExpiresAt().toString(),"normalized",normalizedDigest.value(),"rules",request.rulePack().digest().value()))).value();
         return new PrecheckResult(1,id,request.tenantId(),request.taskId(),request.operation(),request.agentId(),request.inputSnapshot(),original,normalizedDigest,request.rulePack(),findings,evidence,risk,projection,route,decision,now);
     }
     private static String normalize(String value) { return value.replace("\r\n","\n").replace('\r','\n').lines().map(String::stripTrailing).reduce((a,b)->a+"\n"+b).orElse("").strip(); }
