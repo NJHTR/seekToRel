@@ -21,5 +21,5 @@ Append entries; do not rewrite history.
 
 - T010 implementation chain delivered by the contract agent: `ee55d88`, `b74cc4e`, `bb80dae`, `a2c8fa5`, `74fb82c`.
 - Independent review approved `74fb82c` after hardening policy/format/schema gates, expiry boundaries, duplicate precedence, tenant/snapshot matching, full precheck identity, context redaction, unknown-rule isolation, bounded inputs, and oversized-input audit results.
-- Java 21 verification passed: `./mvnw.cmd -pl report-ai-review -am clean test` (15 tests: 3 existing review, 2 document, 10 precheck tests reported by the module run).
+- Java 21 verification passed: `./mvnw.cmd -pl report-ai-review -am clean test` (17 tests: 3 existing completeness review, 12 precheck, and 2 document tests).
 - T010 remains in `verification`: `ProgramPrecheckEngine` is deterministic and replayable, but Agent/review/recovery entry points do not yet enforce a persisted precheck receipt. Resolver/repository ports and custom rule evaluators are also follow-up integration boundaries.
