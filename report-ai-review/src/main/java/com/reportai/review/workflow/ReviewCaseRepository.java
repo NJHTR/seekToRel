@@ -16,9 +16,10 @@ public interface ReviewCaseRepository {
         return events(caseId, tenantId).stream().filter(event -> event.idempotencyKey().equals(idempotencyKey)).findFirst();
     }
 
-    record AppendResult(ReviewCase state, boolean duplicate) {
+    record AppendResult(ReviewCase state, ReviewEvent event, boolean duplicate) {
         public AppendResult {
             if (state == null) throw new NullPointerException("state");
         }
+        public AppendResult(ReviewCase state, boolean duplicate) { this(state, null, duplicate); }
     }
 }

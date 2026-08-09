@@ -56,13 +56,14 @@ public final class ReviewWorkflowGate {
                 command.idempotencyKey(), command.caseId(), command.action(), current.state(), next.state(),
                 evaluationId(command), next.version(), Instant.now(clock));
         ReviewCaseRepository.AppendResult appended = repository.append(current, next, event);
-        return new ReviewOutcome(appended.state(), event, appended.duplicate());
+        return new ReviewOutcome(appended.state(), appended.event() == null ? event : appended.event(), appended.duplicate());
     }
 
     public ReviewCase replay(String caseId, TenantId tenantId) {
         ReviewCase state = repository.find(caseId, tenantId).orElseThrow(() -> new ReviewWorkflowException("review case not found"));
         ReviewCase rebuilt = new ReviewCase(state.id(), state.tenantId(), state.taskId(), state.inputSnapshot(), state.precheckId(),
-                ReviewState.FIRST_PASS_PENDING, 0, 0, state.maxReentries(), state.maxRecoveryAttempts(), null, 0);
+                ReviewState.FIRST_PASS_PENDING, 0, 0, state.maxReentries(), state.maxRecoveryAttempts(), null, 0,
+                state.expectedOperation(), state.expectedAgentId());
         for (ReviewEvent event : repository.events(caseId, tenantId)) {
             rebuilt = applyEvent(rebuilt, event);
         }
@@ -71,7 +72,8 @@ public final class ReviewWorkflowGate {
     }
 
     private static ReviewCase applyEvent(ReviewCase current, ReviewEvent event) {
-        if (current.version() + 1 != event.version() || current.state() != event.from()) {
+        if (current.version() + 1 != event.version() || current.state() != event.from()
+                || !current.id().equals(event.caseId()) || !allowedTarget(event.action(), event.to())) {
             throw new ReviewWorkflowException("invalid review event stream");
         }
         int reentries = current.reentryCount() + (event.action() == ReviewAction.REENTER_FIRST_REVIEW
@@ -80,7 +82,19 @@ public final class ReviewWorkflowGate {
                 && event.to() == ReviewState.REENTRY_PENDING ? 1 : 0);
         return new ReviewCase(current.id(), current.tenantId(), current.taskId(), current.inputSnapshot(), current.precheckId(),
                 event.to(), reentries, recoveries, current.maxReentries(), current.maxRecoveryAttempts(),
-                event.evaluationId(), event.version());
+                event.evaluationId(), event.version(), current.expectedOperation(), current.expectedAgentId());
+    }
+
+    private static boolean allowedTarget(ReviewAction action, ReviewState target) {
+        return switch (action) {
+            case SUBMIT_FIRST_REVIEW -> target == ReviewState.ACCEPTANCE || target == ReviewState.REJECTION || target == ReviewState.RECOVERY_PENDING;
+            case SUBMIT_ACCEPTANCE, SUBMIT_REJECTION -> target == ReviewState.SECOND_REVIEW_PENDING || target == ReviewState.RECOVERY_PENDING;
+            case SUBMIT_SECOND_REVIEW -> target == ReviewState.APPROVED || target == ReviewState.REJECTED || target == ReviewState.RECOVERY_PENDING;
+            case REQUEST_RECOVERY -> target == ReviewState.RECOVERY_PENDING;
+            case COMPLETE_RECOVERY -> target == ReviewState.REENTRY_PENDING || target == ReviewState.EXHAUSTED;
+            case REENTER_FIRST_REVIEW -> target == ReviewState.FIRST_PASS_PENDING || target == ReviewState.EXHAUSTED;
+            case PRECHECK, ESCALATE -> false;
+        };
     }
 
     private static Transition transition(ReviewCase current, ReviewAction action, ReviewEvaluation evaluation, List<ReviewEvent> history) {
@@ -140,7 +154,8 @@ public final class ReviewWorkflowGate {
         var packet = evaluation.packet();
         var receipt = evaluation.precheck();
         Instant now = Instant.now(clock);
-        if (!receipt.acceptedForAgent() || !receipt.precheckId().equals(current.precheckId())
+        if (!receipt.acceptedForAgent() || !receipt.operation().equals(current.expectedOperation())
+                || !receipt.agentId().equals(current.expectedAgentId()) || !receipt.precheckId().equals(current.precheckId())
                 || !receipt.tenantId().equals(current.tenantId()) || !receipt.taskId().equals(current.taskId())
                 || !receipt.inputSnapshot().snapshotId().equals(current.inputSnapshot().snapshotId())
                 || !receipt.inputSnapshot().contentDigest().equals(current.inputSnapshot().contentDigest())

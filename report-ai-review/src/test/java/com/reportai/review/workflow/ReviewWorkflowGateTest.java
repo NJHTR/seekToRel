@@ -90,6 +90,47 @@ class ReviewWorkflowGateTest {
         assertEquals(repository.find("case-1", tenant).orElseThrow(), gate.replay("case-1", tenant));
     }
 
+    @Test
+    void receiptFromAnotherAgentIsRejected() {
+        InMemoryReviewCaseRepository repository = new InMemoryReviewCaseRepository();
+        ReviewWorkflowGate gate = new ReviewWorkflowGate(repository, fixedClock());
+        repository.create(ReviewCase.create("case-1", receipt, 1, 1));
+        PrecheckResult otherAgent = new PrecheckResult(receipt.schemaVersion(), receipt.precheckId(), receipt.tenantId(),
+                receipt.taskId(), receipt.operation(), new AgentId("other-agent"), receipt.inputSnapshot(),
+                receipt.originalInputDigest(), receipt.normalizedInputDigest(), receipt.rulePack(), receipt.findings(),
+                receipt.evidenceResolution(), receipt.riskAssessment(), receipt.contextProjection(),
+                receipt.recommendedRoute(), receipt.decision(), receipt.createdAt());
+        EvaluationPacket packet = new EvaluationPacket(1, new EvaluationId("other-eval"), EvaluationDecision.ACCEPT,
+                .8, .9, "summary", List.of("reason"), List.of(), List.of(), "next", null, "agent-1.0", snapshot, NOW);
+        assertThrows(ReviewWorkflowException.class, () -> gate.handle(command("c-other", "i-other", 0,
+                ReviewAction.SUBMIT_FIRST_REVIEW, new ReviewEvaluation(packet, otherAgent))));
+    }
+
+    @Test
+    void replayRejectsForgedTerminalTransition() {
+        InMemoryReviewCaseRepository delegate = new InMemoryReviewCaseRepository();
+        ReviewWorkflowGate gate = new ReviewWorkflowGate(delegate, fixedClock());
+        delegate.create(ReviewCase.create("case-1", receipt, 1, 1));
+        ReviewOutcome accepted = gate.handle(command("c-1", "i-1", 0, ReviewAction.SUBMIT_FIRST_REVIEW,
+                evaluation("e-1", EvaluationDecision.ACCEPT, null, NOW)));
+        ReviewCaseRepository tampered = new ReviewCaseRepository() {
+            @Override public ReviewCase create(ReviewCase value) { return delegate.create(value); }
+            @Override public java.util.Optional<ReviewCase> find(String id, TenantId owner) { return delegate.find(id, owner); }
+            @Override public AppendResult append(ReviewCase expected, ReviewCase next, ReviewEvent event) { return delegate.append(expected, next, event); }
+            @Override public List<ReviewEvent> events(String id, TenantId owner) {
+                List<ReviewEvent> source = delegate.events(id, owner);
+                ReviewEvent original = source.get(0);
+                ReviewEvent forged = new ReviewEvent(original.eventId(), original.commandId(), original.idempotencyKey(),
+                        original.caseId(), original.action(), original.from(), ReviewState.APPROVED,
+                        original.evaluationId(), original.version(), original.occurredAt());
+                return List.of(forged);
+            }
+        };
+        assertEquals(ReviewState.ACCEPTANCE, accepted.reviewCase().state());
+        assertThrows(ReviewWorkflowException.class, () -> new ReviewWorkflowGate(tampered, fixedClock())
+                .replay("case-1", tenant));
+    }
+
     private ReviewCommand command(String id, String key, long version, ReviewAction action, ReviewEvaluation evaluation) {
         return new ReviewCommand(new CommandId(id), key, "case-1", tenant, version, action, evaluation);
     }

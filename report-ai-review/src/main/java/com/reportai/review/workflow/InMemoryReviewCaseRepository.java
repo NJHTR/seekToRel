@@ -34,7 +34,7 @@ public final class InMemoryReviewCaseRepository implements ReviewCaseRepository 
         ReviewEvent prior = byIdempotency.get(idempotencyKey(expected.tenantId(), expected.id(), event.idempotencyKey()));
         if (prior != null) {
             if (!sameCommand(prior, event)) throw new ReviewConflictException("idempotency key reused with different command");
-            return new AppendResult(states.get(aggregateKey), true);
+            return new AppendResult(states.get(aggregateKey), prior, true);
         }
         ReviewCase current = states.get(aggregateKey);
         if (current == null) throw new ReviewWorkflowException("review case not found");
@@ -45,7 +45,7 @@ public final class InMemoryReviewCaseRepository implements ReviewCaseRepository 
         states.put(aggregateKey, next);
         eventLog.computeIfAbsent(aggregateKey, ignored -> new ArrayList<>()).add(event);
         byIdempotency.put(idempotencyKey(expected.tenantId(), expected.id(), event.idempotencyKey()), event);
-        return new AppendResult(next, false);
+        return new AppendResult(next, event, false);
     }
 
     @Override
