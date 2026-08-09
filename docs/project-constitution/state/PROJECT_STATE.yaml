@@ -1,13 +1,13 @@
 project: nexus-agent-platform
-updated_at: 2026-08-09T08:05:00Z
+updated_at: 2026-08-09T09:25:00Z
 constitution_version: 1
 active_task: T010-program-precheck
-status: in_progress
+status: completed
 branch: main
 owner: codex-root
 started_at: 2026-08-09T08:06:00Z
 claimed_at: 2026-08-09T08:06:00Z
-current_commit: 74fb82c72fb2c9896e8332a5287140f39eecefd0
+current_commit: bc6a31c
 owned_paths:
   - report-ai-common/src/main/java/com/reportai/common/contract
   - report-ai-common/src/test/java/com/reportai/common/contract
@@ -15,18 +15,19 @@ owned_paths:
   - report-ai-review/src/test/java/com/reportai/review/precheck
   - report-ai-agent/src/main/java/com/reportai/agent
   - report-ai-agent/src/test/java/com/reportai/agent
-last_verified_commit: 74fb82c72fb2c9896e8332a5287140f39eecefd0
+last_verified_commit: bc6a31c
 completed_tasks:
   - T000-foundation-contracts
+  - T010-program-precheck
 blocked_tasks: []
-next_unblocked_task: T010-program-precheck
+next_unblocked_task: T020-review-workflow
 verification:
-  last_command: "JAVA_HOME=C:\\Users\\NJHTR\\.jdks\\ms-21.0.11 .\\mvnw.cmd -pl report-ai-review -am clean test"
+  last_command: "JAVA_HOME=C:\\Users\\NJHTR\\.jdks\\ms-21.0.11 .\\mvnw.cmd clean; .\\mvnw.cmd -pl report-ai-agent -am test; .\\mvnw.cmd -pl report-ai-application -am test"
   last_result: passed
-  last_run_at: 2026-08-09T08:27:00Z
+  last_run_at: 2026-08-09T09:22:35Z
 risks:
   - Existing modules already contain overlapping workflow and agent contracts; consolidate only after reading current ownership.
   - AgentGit persistence must remain compatible with PostgreSQL, object storage, and the existing outbox/event model.
 handoff:
-  summary: T000 is complete. T010 deterministic precheck is verified; this wave adds fail-closed Agent-entry receipt enforcement.
-  required_next_action: Implement and independently review the report-ai-agent guard, then run cross-module tests and complete T010.
+  summary: T010 is complete. Deterministic precheck now produces tenant/task/snapshot-bound receipts for every application Agent stage; Agent orchestration and pipeline resume reject missing, stale, mismatched, or disallowed receipts.
+  required_next_action: Claim T020-review-workflow after reviewing the existing review/evaluation contracts and preserving the T010 receipt boundary.
