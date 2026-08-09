@@ -2,7 +2,7 @@ project: nexus-agent-platform
 updated_at: 2026-08-09T08:05:00Z
 constitution_version: 1
 active_task: T010-program-precheck
-status: verification
+status: in_progress
 branch: main
 owner: codex-root
 started_at: 2026-08-09T08:06:00Z
@@ -13,6 +13,8 @@ owned_paths:
   - report-ai-common/src/test/java/com/reportai/common/contract
   - report-ai-review/src/main/java/com/reportai/review/precheck
   - report-ai-review/src/test/java/com/reportai/review/precheck
+  - report-ai-agent/src/main/java/com/reportai/agent
+  - report-ai-agent/src/test/java/com/reportai/agent
 last_verified_commit: 74fb82c72fb2c9896e8332a5287140f39eecefd0
 completed_tasks:
   - T000-foundation-contracts
@@ -26,5 +28,5 @@ risks:
   - Existing modules already contain overlapping workflow and agent contracts; consolidate only after reading current ownership.
   - AgentGit persistence must remain compatible with PostgreSQL, object storage, and the existing outbox/event model.
 handoff:
-  summary: T000 is complete. T010 deterministic precheck implementation is verified through 74fb82c, but Agent-entry receipt enforcement remains before completion.
-  required_next_action: Add the Agent/review/recovery precheck evidence guard and integration contract tests, then complete T010.
+  summary: T000 is complete. T010 deterministic precheck is verified; this wave adds fail-closed Agent-entry receipt enforcement.
+  required_next_action: Implement and independently review the report-ai-agent guard, then run cross-module tests and complete T010.
