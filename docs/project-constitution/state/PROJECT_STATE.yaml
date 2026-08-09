@@ -2,16 +2,17 @@ project: nexus-agent-platform
 updated_at: 2026-08-09T08:05:00Z
 constitution_version: 1
 active_task: T010-program-precheck
-status: completed
+status: claimed
 branch: main
 owner: codex-root
-started_at: 2026-08-09T00:00:00Z
-claimed_at: 2026-08-09T00:00:00Z
+started_at: 2026-08-09T08:06:00Z
+claimed_at: 2026-08-09T08:06:00Z
 current_commit: 7b9a8c68e4446d796d96510cd824253962b4c7bb
 owned_paths:
   - report-ai-common/src/main/java/com/reportai/common/contract
   - report-ai-common/src/test/java/com/reportai/common/contract
-  - docs/project-constitution/tasks/T000-foundation-contracts.md
+  - report-ai-review/src/main/java/com/reportai/review/precheck
+  - report-ai-review/src/test/java/com/reportai/review/precheck
 last_verified_commit: 7b9a8c68e4446d796d96510cd824253962b4c7bb
 completed_tasks:
   - T000-foundation-contracts
