@@ -1,28 +1,29 @@
 project: nexus-agent-platform
-updated_at: 2026-08-09T07:47:33Z
+updated_at: 2026-08-09T08:05:00Z
 constitution_version: 1
-active_task: T000-foundation-contracts
-status: in_progress
-branch: master
+active_task: T010-program-precheck
+status: completed
+branch: main
 owner: codex-root
 started_at: 2026-08-09T00:00:00Z
 claimed_at: 2026-08-09T00:00:00Z
-current_commit: 4b32677
+current_commit: 7b9a8c68e4446d796d96510cd824253962b4c7bb
 owned_paths:
   - report-ai-common/src/main/java/com/reportai/common/contract
   - report-ai-common/src/test/java/com/reportai/common/contract
   - docs/project-constitution/tasks/T000-foundation-contracts.md
-last_verified_commit: 4b32677
-completed_tasks: []
+last_verified_commit: 7b9a8c68e4446d796d96510cd824253962b4c7bb
+completed_tasks:
+  - T000-foundation-contracts
 blocked_tasks: []
-next_unblocked_task: T000-foundation-contracts
+next_unblocked_task: T010-program-precheck
 verification:
-  last_command: null
-  last_result: null
-  last_run_at: null
+  last_command: "JAVA_HOME=C:\\Users\\NJHTR\\.jdks\\ms-21.0.11 .\\mvnw.cmd -pl report-ai-common -am clean test && java -ea -cp report-ai-common\\target\\classes;report-ai-common\\target\\test-classes com.reportai.common.contract.FoundationContractSelfCheck && jdeps --multi-release 21 --print-module-deps report-ai-common\\target\\classes"
+  last_result: passed
+  last_run_at: 2026-08-09T08:02:47Z
 risks:
   - Existing modules already contain overlapping workflow and agent contracts; consolidate only after reading current ownership.
   - AgentGit persistence must remain compatible with PostgreSQL, object storage, and the existing outbox/event model.
 handoff:
-  summary: T000 remains claimed; legacy repository metadata was moved outside the workspace and the unified source baseline is now commit 4b32677.
-  required_next_action: Implement dependency-free immutable contracts in report-ai-common and verify consumers.
+  summary: T000 foundation contracts implemented and verified in report-ai-common; commits 044b79b and 7b9a8c6 authored by yaopenghao.
+  required_next_action: Claim T010-program-precheck and build deterministic precheck contracts on top of T000.
