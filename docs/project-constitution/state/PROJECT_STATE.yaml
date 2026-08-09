@@ -1,5 +1,5 @@
 project: nexus-agent-platform
-updated_at: 2026-08-09T00:00:00Z
+updated_at: 2026-08-09T07:47:33Z
 constitution_version: 1
 active_task: T000-foundation-contracts
 status: in_progress
@@ -7,12 +7,12 @@ branch: master
 owner: codex-root
 started_at: 2026-08-09T00:00:00Z
 claimed_at: 2026-08-09T00:00:00Z
-current_commit: 9997f33db97314fcf02dd9be1ea4dd1165f5b46f
+current_commit: 4b32677
 owned_paths:
   - report-ai-common/src/main/java/com/reportai/common/contract
   - report-ai-common/src/test/java/com/reportai/common/contract
   - docs/project-constitution/tasks/T000-foundation-contracts.md
-last_verified_commit: null
+last_verified_commit: 4b32677
 completed_tasks: []
 blocked_tasks: []
 next_unblocked_task: T000-foundation-contracts
@@ -24,5 +24,5 @@ risks:
   - Existing modules already contain overlapping workflow and agent contracts; consolidate only after reading current ownership.
   - AgentGit persistence must remain compatible with PostgreSQL, object storage, and the existing outbox/event model.
 handoff:
-  summary: T000 foundation contracts claimed after repository and public-contract inspection.
+  summary: T000 remains claimed; legacy repository metadata was moved outside the workspace and the unified source baseline is now commit 4b32677.
   required_next_action: Implement dependency-free immutable contracts in report-ai-common and verify consumers.
