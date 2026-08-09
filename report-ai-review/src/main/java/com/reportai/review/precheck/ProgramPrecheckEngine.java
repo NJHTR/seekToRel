@@ -8,6 +8,7 @@ import java.util.*;
 
 public final class ProgramPrecheckEngine {
     private final TimeSource timeSource;
+    public ProgramPrecheckEngine() { this(TimeSource.systemUtc()); }
     public ProgramPrecheckEngine(TimeSource timeSource) { this.timeSource = Objects.requireNonNull(timeSource, "timeSource"); }
     public PrecheckResult precheck(PrecheckRequest request) { return check(request); }
     public PrecheckResult check(PrecheckRequest request) {
