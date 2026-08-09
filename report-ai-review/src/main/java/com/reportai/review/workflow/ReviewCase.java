@@ -42,6 +42,11 @@ public record ReviewCase(String id, TenantId tenantId, TaskId taskId, InputSnaps
                 evaluation == null ? latestEvaluationId : evaluation.packet().evaluationId(), version + 1);
     }
 
+    /** Compatibility helper for adapters that build an aggregate successor in one step. */
+    public ReviewCase successor(ReviewState next, ReviewEvaluation evaluation, int reentries, int recoveries) {
+        return next(next, evaluation, reentries, recoveries);
+    }
+
     private static String text(String value, String field, int max) {
         Objects.requireNonNull(value, field);
         String normalized = value.strip();
