@@ -33,12 +33,12 @@ public final class AgentPrecheckGuard {
     }
 
     public Validation validate(AgentContext context, String agentType) {
-        if (context == null || context.inputSnapshot() == null) return Validation.deny("PRECHECK_MISSING", PrecheckRoute.REJECT);
+        if (context == null || context.inputSnapshot() == null || context.tenantId() == null || context.taskId() == null || context.taskId().isBlank()) return Validation.deny("PRECHECK_MISSING", PrecheckRoute.REJECT);
         if (agentType == null || agentType.isBlank()) return Validation.deny("AGENT_ID_MISSING", PrecheckRoute.REJECT);
         PrecheckResult receipt = context.precheckReceipts().getOrDefault(agentType, context.precheckResult());
         if (receipt == null) return Validation.deny("PRECHECK_MISSING", PrecheckRoute.REJECT);
         InputSnapshot snapshot = context.inputSnapshot();
-        if (!context.tenantId().equals(receipt.tenantId()) || !context.tenantId().equals(snapshot.tenantId())) return Validation.deny("PRECHECK_TENANT_MISMATCH", receipt.recommendedRoute());
+        if (!context.tenantId().equals(receipt.tenantId()) || !context.tenantId().equals(snapshot.tenantId()) || !receipt.tenantId().equals(receipt.inputSnapshot().tenantId())) return Validation.deny("PRECHECK_TENANT_MISMATCH", receipt.recommendedRoute());
         if (!context.taskId().equals(receipt.taskId().value())) return Validation.deny("PRECHECK_TASK_MISMATCH", receipt.recommendedRoute());
         if (!agentType.equals(receipt.agentId().value())) return Validation.deny("PRECHECK_AGENT_MISMATCH", receipt.recommendedRoute());
         if (!snapshot.snapshotId().equals(receipt.inputSnapshot().snapshotId()) || !snapshot.contentDigest().equals(receipt.inputSnapshot().contentDigest()) || !snapshot.contentDigest().equals(receipt.originalInputDigest())) return Validation.deny("PRECHECK_INPUT_MISMATCH", receipt.recommendedRoute());

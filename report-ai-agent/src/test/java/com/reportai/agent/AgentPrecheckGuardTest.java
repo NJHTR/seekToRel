@@ -21,6 +21,9 @@ class AgentPrecheckGuardTest {
         var fixture = fixture(NOW, PrecheckDecision.ACCEPT, PrecheckRoute.AGENT);
         var result = guard().validate(fixture.context(), "agent-1");
         assertTrue(result.allowed());
+        var mapOnly = new AgentContext("task-1", fixture.tenant(), Map.of(), null, null,
+                fixture.snapshot(), null, Map.of("agent-1", fixture.result()));
+        assertTrue(guard().validate(mapOnly, "agent-1").allowed());
     }
 
     @Test
@@ -53,6 +56,8 @@ class AgentPrecheckGuardTest {
         assertEquals(AgentResult.Status.FAILED, result.status());
         assertEquals("PRECHECK_MISSING", result.outputs().get("precheckErrorCode"));
         assertFalse(invoked.get());
+        AgentContext nullIdentity = new AgentContext(null, null, Map.of(), null, null);
+        assertEquals("PRECHECK_MISSING", guard().validate(nullIdentity, "agent-1").code());
     }
 
     private AgentPrecheckGuard guard() { return new AgentPrecheckGuard(() -> NOW, Duration.ofHours(1), null); }

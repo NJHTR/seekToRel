@@ -93,11 +93,15 @@ public final class AgentPipelineExecutor {
             return new AgentPipelineResult(AgentPipelineStatus.FAILED, denied,
                     new AgentResult(AgentResult.Status.FAILED, state, validation.code()));
         }
+        com.reportai.review.precheck.PrecheckResult currentReceipt = stepContext.precheckReceipts().get(agents.get(index).type());
+        if (currentReceipt == null) currentReceipt = stepContext.precheckResult();
+        Object persistedPrecheckAgent = checkpoint.state().get("precheckAgent");
         Object persistedPrecheckId = checkpoint.state().get("precheckId");
-        if (persistedPrecheckId != null && !persistedPrecheckId.equals(stepContext.precheckResult().precheckId())) {
+        if (agents.get(index).type().equals(persistedPrecheckAgent)
+                && persistedPrecheckId != null && (currentReceipt == null || !persistedPrecheckId.equals(currentReceipt.precheckId()))) {
             Map<String, Object> state = new java.util.LinkedHashMap<>(checkpoint.state());
             state.put("precheckErrorCode", "PRECHECK_RECEIPT_MISMATCH");
-            state.put("precheckRoute", stepContext.precheckResult().recommendedRoute().name());
+            state.put("precheckRoute", currentReceipt == null ? "REJECT" : currentReceipt.recommendedRoute().name());
             AgentPipelineCheckpoint denied = update(checkpoint, AgentPipelineStatus.FAILED, index, state, "PRECHECK_RECEIPT_MISMATCH");
             return new AgentPipelineResult(AgentPipelineStatus.FAILED, denied,
                     new AgentResult(AgentResult.Status.FAILED, state, "PRECHECK_RECEIPT_MISMATCH"));
@@ -111,9 +115,10 @@ public final class AgentPipelineExecutor {
         // and every previous agent output survive a restart/resume boundary.
         Map<String, Object> state = new java.util.LinkedHashMap<>(checkpoint.state());
         mergeRuntimeState(state, runtimeContext);
-        state.put("precheckId", stepContext.precheckResult().precheckId());
-        state.put("precheckNormalizedInputDigest", stepContext.precheckResult().normalizedInputDigest().value());
-        state.put("precheckRulePackDigest", stepContext.precheckResult().rulePack().digest().value());
+        state.put("precheckAgent", agents.get(index).type());
+        state.put("precheckId", currentReceipt.precheckId());
+        state.put("precheckNormalizedInputDigest", currentReceipt.normalizedInputDigest().value());
+        state.put("precheckRulePackDigest", currentReceipt.rulePack().digest().value());
         state.putAll(result.outputs());
         List<String> completed = new ArrayList<>();
         completed.addAll(types.subList(0, index));

@@ -21,6 +21,14 @@ import com.reportai.application.config.properties.ReportAiSchedulerProperties;
 import com.reportai.application.config.properties.ReportAiLlmProperties;
 import com.reportai.application.config.properties.ReportAiRuntimeProperties;
 import com.reportai.common.exception.BusinessException;
+import com.reportai.common.contract.AgentId;
+import com.reportai.common.contract.CanonicalJson;
+import com.reportai.common.contract.InputSnapshot;
+import com.reportai.common.contract.Sha256Digest;
+import com.reportai.common.contract.SnapshotId;
+import com.reportai.common.contract.SnapshotRef;
+import com.reportai.common.contract.TaskId;
+import com.reportai.common.time.TimeSource;
 import com.reportai.common.id.IdGenerator;
 import com.reportai.common.tenant.TenantContext;
 import com.reportai.common.tenant.TenantId;
@@ -61,6 +69,15 @@ import com.reportai.word.TemplatePatch;
 import com.reportai.word.WordReleaseService;
 import com.reportai.workflow.WorkflowEngine;
 import com.reportai.workflow.WorkflowInstance;
+import com.reportai.review.precheck.ContextBudget;
+import com.reportai.review.precheck.PrecheckDecision;
+import com.reportai.review.precheck.PrecheckRequest;
+import com.reportai.review.precheck.PrecheckResult;
+import com.reportai.review.precheck.ProgramPrecheckEngine;
+import com.reportai.review.precheck.RuleDescriptor;
+import com.reportai.review.precheck.RulePack;
+import com.reportai.review.precheck.PrecheckStage;
+import com.reportai.review.precheck.PrecheckSeverity;
 import org.springframework.beans.factory.ObjectProvider;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
@@ -77,6 +94,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -133,6 +151,11 @@ public final class ReportTaskHandler implements TaskHandler {
     private final ObjectProvider<TaskInputApplicationService> taskInputs;
     private final EnvironmentManifestValidator environmentManifestValidator = new EnvironmentManifestValidator();
     private final PythonImportDependencyResolver pythonImportDependencyResolver = new PythonImportDependencyResolver();
+    private final TimeSource precheckTimeSource = TimeSource.systemUtc();
+    private final ProgramPrecheckEngine precheckEngine = new ProgramPrecheckEngine(precheckTimeSource);
+    private final RulePack precheckRulePack = RulePack.of("application-default", "1", "policy-1",
+            List.of(new RuleDescriptor("input.policy", PrecheckStage.FORMAT_SECURITY,
+                    PrecheckSeverity.CRITICAL, "application policy", 90)));
     private final ScheduledExecutorService agentProgressHeartbeats =
             Executors.newSingleThreadScheduledExecutor(runnable -> {
                 Thread thread = new Thread(runnable, "report-ai-agent-progress");
@@ -735,6 +758,43 @@ public final class ReportTaskHandler implements TaskHandler {
                 payload.sha256().toLowerCase(Locale.ROOT));
     }
 
+    private PrecheckBundle buildPrechecks(ReportTaskPayload payload, Document document,
+                                          List<? extends Agent> agents) {
+        String sourceDigest = payload.sha256() == null
+                ? Sha256Digest.ofText(payload.documentObjectKey()).value()
+                : payload.sha256().toLowerCase(Locale.ROOT);
+        String canonicalInput = CanonicalJson.encode(Map.of(
+                "taskId", payload.taskId(), "tenantId", payload.tenantId().value(),
+                "documentId", document.id(), "sourceObjectKey", payload.documentObjectKey(),
+                "sourceDigest", sourceDigest, "mediaType", payload.mediaType() == null ? "" : payload.mediaType(),
+                "size", Math.max(0L, payload.size())));
+        Sha256Digest inputDigest = Sha256Digest.ofText(canonicalInput);
+        SnapshotRef source = new SnapshotRef("source", payload.documentObjectKey(),
+                payload.mediaType() == null ? "application/octet-stream" : payload.mediaType(),
+                Math.max(0L, payload.size()), new Sha256Digest(sourceDigest));
+        Instant createdAt = precheckTimeSource.now();
+        InputSnapshot snapshot = new InputSnapshot(1,
+                new SnapshotId("snapshot-" + inputDigest.value().substring(0, 16)), payload.tenantId(),
+                List.of(source), inputDigest, List.of(), createdAt,
+                Map.of("source", "report-task"));
+        Map<String, PrecheckResult> receipts = new LinkedHashMap<>();
+        for (Agent agent : agents) {
+            PrecheckRequest request = new PrecheckRequest(payload.tenantId(), new TaskId(payload.taskId()),
+                    "agent-pipeline", new AgentId(agent.type()), snapshot, canonicalInput, "text/plain", "1.0",
+                    List.of(), precheckRulePack, ContextBudget.defaults(), List.of(), createdAt.plusSeconds(3600));
+            PrecheckResult result = precheckEngine.check(request);
+            if (result.decision() != PrecheckDecision.ACCEPT || !result.acceptedForAgent()) {
+                throw new NonRetryableTaskException("program precheck blocked agent " + agent.type());
+            }
+            receipts.put(agent.type(), result);
+        }
+        if (receipts.isEmpty()) throw new NonRetryableTaskException("program precheck has no agent receipts");
+        return new PrecheckBundle(snapshot, receipts.get(agents.get(0).type()), Map.copyOf(receipts));
+    }
+
+    private record PrecheckBundle(InputSnapshot snapshot, PrecheckResult primary,
+                                  Map<String, PrecheckResult> byAgent) { }
+
     private void runAgents(TaskExecutionContext context, ReportTaskPayload payload, Document document,
                            Map<String, Object> state, List<? extends Agent> agents) {
         if (llmProviders.getIfAvailable() == null) {
@@ -756,6 +816,7 @@ public final class ReportTaskHandler implements TaskHandler {
                 ? "coder-runtime" : agentTypes.stream().reduce((left, right) -> left + "-" + right)
                 .orElse("pipeline");
         String pipelineId = payload.taskId() + "-" + pipelineSuffix;
+        PrecheckBundle prechecks = buildPrechecks(payload, document, agents);
         Map<String, Object> llmOptions = Map.of(
                 "coderReasoningEffort", llmProperties.getCoderReasoningEffort(),
                 "coderFallbackReasoningEffort", llmProperties.getCoderFallbackReasoningEffort(),
@@ -827,7 +888,8 @@ public final class ReportTaskHandler implements TaskHandler {
                 }
                 AgentContext agentContext = new AgentContext(payload.taskId(), payload.tenantId(), state,
                         llmProviders.getIfAvailable(), toolRegistries.getIfAvailable(), llmOptions,
-                        documentAssetAttachmentResolver(document, payload), Set.of("document"));
+                        documentAssetAttachmentResolver(document, payload), Set.of("document"),
+                        prechecks.snapshot(), prechecks.primary(), prechecks.byAgent());
                 LOGGER.info("agent stage started taskId={} agents={}", payload.taskId(), agentNames);
                 context.progress(Math.min(85, 30 + state.size()), "running agent stage: " + agentNames,
                         Map.of("phase", "agents", "agents", agentNames,
