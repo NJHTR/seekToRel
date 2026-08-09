@@ -31,6 +31,13 @@ Append entries; do not rewrite history.
 - Verification passed with Java 21 after a separate clean phase: `./mvnw.cmd clean`; `./mvnw.cmd -pl report-ai-review -am test`; `./mvnw.cmd -pl report-ai-agent -am test` (39 Agent tests plus reactor dependencies); `./mvnw.cmd -pl report-ai-application -am test` (application suite and reactor dependencies). The precheck suite includes stable-identity coverage across policy expiry windows.
 - T010 completed. Next unblocked foundation task is `T020-review-workflow`.
 
+- T020 claimed on `codex/T020-review-workflow/root` after architecture review of the existing `CompletenessReviewEngine`, common `EvaluationPacket`, and generic workflow lifecycle. The implementation deliberately stayed inside `report-ai-review` and did not bypass the T010 precheck boundary.
+- T020 implementation delivered in `fa7aec9`, compatibility/API follow-up in `b883d13`, evidence/idempotency/replay hardening in `a517682`, source-state replay validation in `f4b434a`, and budget/branch replay validation in `7951912`.
+- The review gate now models first-pass pending, acceptance/rejection, strict second review, recovery pending, bounded re-entry, approval/rejection, and exhausted states. It validates tenant/task/snapshot/precheck/Agent identity, evidence freshness, parent evaluation chains, CAS versions, duplicate idempotency, persisted duplicate events, and replay transition semantics.
+- Independent review initially found cross-Agent receipt acceptance, duplicate-event return races, and replay tampering paths. All findings were fixed and re-reviewed; the final reviewer approved `7951912`. Remaining non-blocking risk: durable PostgreSQL/outbox adapter and real scheduler retry E2E belong to later storage/integration work.
+- Verification passed with Java 21: `./mvnw.cmd -pl report-ai-review -am clean test`; `./mvnw.cmd -pl report-ai-agent -am test`; `./mvnw.cmd -pl report-ai-application -am test`.
+- T020 completed. Next unblocked foundation task is `T030-recovery-orchestration`.
+
 ## 2026-08-09
 
 - Claimed `T020-review-workflow` on branch `codex/T020-review-workflow/root` after verifying the clean T010 baseline (`1add561`) and reviewing existing evaluation, review, and workflow contracts.
