@@ -42,3 +42,11 @@ Append entries; do not rewrite history.
 
 - Claimed `T020-review-workflow` on branch `codex/T020-review-workflow/root` after verifying the clean T010 baseline (`1add561`) and reviewing existing evaluation, review, and workflow contracts.
 - Implementation boundary: extend `report-ai-review` with an explicit review workflow aggregate, append-only events, deterministic gate transitions, recovery/re-entry budgets, and contract tests; preserve T010 precheck receipt contracts and existing completeness review APIs.
+
+## 2026-08-10
+
+- T030 recovery orchestration was implemented in `report-ai-recovery` and registered in the Maven reactor. The module owns deterministic failure classification, typed recovery payloads for input/download/code/dependency/OCR/chart/conflict flows, bounded recovery state and UI status, strategy/precheck/review ports, repair checkpoint identity, and append-only CAS/idempotent in-memory events.
+- Implementation commits: `50cc0cb`, `45fb9a8`, and `90ee02a` (`yaopenghao <njhtr1018@outlook.com>`). The final hardening binds command payload digests and failure fingerprints, requires fresh precheck-attested branch/checkpoint identities, enforces OCR confidence thresholds, and validates an explicit replay transition table.
+- Agents used: `t030_architecture`, `t030_contract`, `t030_recovery_impl`, and independent `t030_recovery_review`. Review findings on digest binding, replay tampering, checkpoint identity, OCR thresholds, and transition targets were addressed before completion.
+- Verification passed with Java 21: `./mvnw.cmd -pl report-ai-recovery -am clean test -q` (7 tests) and `./mvnw.cmd -pl report-ai-review -am test -q`. Remaining integration risk is intentional: scheduler, durable PostgreSQL/outbox, runtime/tool adapters, and frontend wiring belong to T040+ integration tasks.
+- T030 completed. Next unblocked foundation task is `T040-plan-scheduler-contracts`.

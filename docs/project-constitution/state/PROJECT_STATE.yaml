@@ -1,30 +1,31 @@
 project: nexus-agent-platform
-updated_at: 2026-08-10T07:50:00Z
+updated_at: 2026-08-10T08:20:00Z
 constitution_version: 1
-active_task: T020-review-workflow
+active_task: T030-recovery-orchestration
 status: completed
 branch: main
 owner: codex-root
-started_at: 2026-08-09T09:45:00Z
-claimed_at: 2026-08-09T09:45:00Z
-current_commit: 7951912
+started_at: 2026-08-10T08:05:00Z
+claimed_at: 2026-08-10T08:05:00Z
+current_commit: 90ee02a
 owned_paths:
-  - report-ai-review/src/main/java/com/reportai/review/workflow
-  - report-ai-review/src/test/java/com/reportai/review/workflow
-last_verified_commit: 7951912
+  - report-ai-recovery
+  - pom.xml
+last_verified_commit: 90ee02a
 completed_tasks:
   - T000-foundation-contracts
   - T010-program-precheck
   - T020-review-workflow
+  - T030-recovery-orchestration
 blocked_tasks: []
-next_unblocked_task: T030-recovery-orchestration
+next_unblocked_task: T040-plan-scheduler-contracts
 verification:
-  last_command: "JAVA_HOME=C:\\Users\\NJHTR\\.jdks\\ms-21.0.11 .\\mvnw.cmd -pl report-ai-review -am clean test; .\\mvnw.cmd -pl report-ai-agent -am test; .\\mvnw.cmd -pl report-ai-application -am test"
+  last_command: "JAVA_HOME=C:\\Users\\NJHTR\\.jdks\\ms-21.0.11 .\\mvnw.cmd -pl report-ai-recovery -am clean test; .\\mvnw.cmd -pl report-ai-review -am test"
   last_result: passed
-  last_run_at: 2026-08-10T07:47:00Z
+  last_run_at: 2026-08-10T08:20:00Z
 risks:
   - Existing modules already contain overlapping workflow and agent contracts; consolidate only after reading current ownership.
   - AgentGit persistence must remain compatible with PostgreSQL, object storage, and the existing outbox/event model.
 handoff:
-  summary: T020 is complete. Review proposals now pass through a bounded, replayable workflow gate with first-pass acceptance/rejection, strict second review, recovery re-entry, evidence linkage, idempotency, CAS and tamper-resistant replay.
-  required_next_action: Claim T030-recovery-orchestration after preserving the T010 receipt and T020 review-gate boundaries.
+  summary: T030 completed with typed failure routing, bounded recovery aggregate, fresh precheck-bound branch/checkpoint identity, typed payloads, idempotent CAS event storage, and fail-closed replay transitions.
+  required_next_action: Claim T040-plan-scheduler-contracts after reviewing scheduler ownership and the recovery integration boundary.
