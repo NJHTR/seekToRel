@@ -1,0 +1,2 @@
+package com.reportai.recovery;
+public record InputSubmission(String inputName, String contentDigest, long sizeBytes) implements RecoveryPayload { public InputSubmission { inputName=PayloadRules.text(inputName,"inputName",128); contentDigest=PayloadRules.text(contentDigest,"contentDigest",128); if(sizeBytes<0||sizeBytes>1_000_000_000L) throw new IllegalArgumentException("sizeBytes out of bounds"); } }

@@ -1,0 +1,2 @@
+package com.reportai.recovery;
+public record DependencyRepairRequest(String manifestDigest, String dependencyName, String requestedVersion) implements RecoveryPayload { public DependencyRepairRequest { manifestDigest=PayloadRules.text(manifestDigest,"manifestDigest",128); dependencyName=PayloadRules.text(dependencyName,"dependencyName",128); requestedVersion=PayloadRules.text(requestedVersion,"requestedVersion",128); } }

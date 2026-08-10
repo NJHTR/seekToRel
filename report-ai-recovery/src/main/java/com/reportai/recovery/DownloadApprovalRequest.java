@@ -1,0 +1,2 @@
+package com.reportai.recovery;
+public record DownloadApprovalRequest(String sourceDigest, String mediaType, long sizeBytes, String purpose) implements RecoveryPayload { public DownloadApprovalRequest { sourceDigest=PayloadRules.text(sourceDigest,"sourceDigest",128); mediaType=PayloadRules.text(mediaType,"mediaType",128); purpose=PayloadRules.text(purpose,"purpose",256); if(sizeBytes<0||sizeBytes>1_000_000_000L) throw new IllegalArgumentException("sizeBytes out of bounds"); } }

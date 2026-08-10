@@ -27,6 +27,7 @@
         <module>report-ai-llm</module>
         <module>report-ai-word</module>
         <module>report-ai-review</module>
+        <module>report-ai-recovery</module>
         <module>report-ai-storage</module>
         <module>report-ai-application</module>
     </modules>
