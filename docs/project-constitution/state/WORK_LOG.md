@@ -50,3 +50,15 @@ Append entries; do not rewrite history.
 - Agents used: `t030_architecture`, `t030_contract`, `t030_recovery_impl`, and independent `t030_recovery_review`. Review findings on digest binding, replay tampering, checkpoint identity, OCR thresholds, and transition targets were addressed before completion.
 - Verification passed with Java 21: `./mvnw.cmd -pl report-ai-recovery -am clean test -q` (7 tests) and `./mvnw.cmd -pl report-ai-review -am test -q`. Remaining integration risk is intentional: scheduler, durable PostgreSQL/outbox, runtime/tool adapters, and frontend wiring belong to T040+ integration tasks.
 - T030 completed. Next unblocked foundation task is `T040-plan-scheduler-contracts`.
+
+## 2026-08-10
+
+- Claimed `T040-plan-scheduler-contracts` on `main` at `676ae8c` after verifying a clean workspace and the pushed T030 baseline. Initial owned boundaries are the existing workflow, scheduler, and task contract modules; architecture review must confirm whether a narrower new module is preferable.
+- Wave A agents `t040_architecture` and `t040_contract` are reviewing existing DAG, scheduler lease, outbox, task, and persistence contracts. No implementation changes are authorized until their reports establish the ownership and compatibility boundary.
+
+## 2026-08-10
+
+- T040 plan/scheduler contracts delivered in `e72a922` (`report-ai-workflow`) and `225c03e` (`report-ai-scheduler`), both authored by `yaopenghao <njhtr1018@outlook.com>`. The workflow side owns immutable tenant/version-scoped plan definitions, serial/parallel/conditional/JOIN edges, explicit condition allow-lists, bounded DAG validation, deterministic topological ordering, plan-run CAS and replay-safe in-memory persistence. The scheduler side owns typed node references, precheck attestations, priority/fairness ordering, bounded resource requests/reservations, lease/version CAS claims, lifecycle transitions, cancellation request/acknowledgement, restart reconciliation, and idempotent submission.
+- Independent review by `t040_integration_review` approved the hardening commit `f2272b9`: convenience plan constructors no longer implicitly allow conditional edges; JOIN references must equal their JOIN target; cancellation idempotency is scoped by tenant and node; cancellation request digests omit `commandId` so a retry with a new command ID remains idempotent. Regression tests were added for each boundary. All T040 code commits were authored by `yaopenghao <njhtr1018@outlook.com>`.
+- Verification passed with Java 21 (`JAVA_HOME=C:\Users\NJHTR\.jdks\ms-21.0.11`): `./mvnw.cmd -pl report-ai-workflow,report-ai-scheduler -am test -q`, `./mvnw.cmd -pl report-ai-recovery -am test -q`, and `./mvnw.cmd -pl report-ai-review -am test -q`. The first command was independently rerun by the reviewer and exited 0; only the non-blocking SLF4J NOP warning was emitted.
+- T040 completed. Remaining integration risks are intentional: PostgreSQL DAG/node persistence, transactional outbox wiring, scheduler application integration, AgentGit control-plane events, runtime adapters, and UI observability belong to later tasks. Next unblocked task is `T050-agentgit-control-plane`.

@@ -1,31 +1,33 @@
 project: nexus-agent-platform
-updated_at: 2026-08-10T08:20:00Z
+updated_at: 2026-08-10T09:02:04Z
 constitution_version: 1
-active_task: T030-recovery-orchestration
+active_task: T040-plan-scheduler-contracts
 status: completed
 branch: main
 owner: codex-root
-started_at: 2026-08-10T08:05:00Z
-claimed_at: 2026-08-10T08:05:00Z
-current_commit: 90ee02a
+started_at: 2026-08-10T08:24:00Z
+claimed_at: 2026-08-10T08:24:00Z
+current_commit: f2272b9
 owned_paths:
-  - report-ai-recovery
-  - pom.xml
-last_verified_commit: 90ee02a
+  - report-ai-workflow
+  - report-ai-scheduler
+  - report-ai-task
+last_verified_commit: f2272b9
 completed_tasks:
   - T000-foundation-contracts
   - T010-program-precheck
   - T020-review-workflow
   - T030-recovery-orchestration
+  - T040-plan-scheduler-contracts
 blocked_tasks: []
-next_unblocked_task: T040-plan-scheduler-contracts
+next_unblocked_task: T050-agentgit-control-plane
 verification:
-  last_command: "JAVA_HOME=C:\\Users\\NJHTR\\.jdks\\ms-21.0.11 .\\mvnw.cmd -pl report-ai-recovery -am clean test; .\\mvnw.cmd -pl report-ai-review -am test"
+  last_command: "JAVA_HOME=C:\\Users\\NJHTR\\.jdks\\ms-21.0.11 .\\mvnw.cmd -pl report-ai-workflow,report-ai-scheduler -am test -q; .\\mvnw.cmd -pl report-ai-recovery -am test -q; .\\mvnw.cmd -pl report-ai-review -am test -q"
   last_result: passed
-  last_run_at: 2026-08-10T08:20:00Z
+  last_run_at: 2026-08-10T09:02:04Z
 risks:
   - Existing modules already contain overlapping workflow and agent contracts; consolidate only after reading current ownership.
   - AgentGit persistence must remain compatible with PostgreSQL, object storage, and the existing outbox/event model.
 handoff:
-  summary: T030 completed with typed failure routing, bounded recovery aggregate, fresh precheck-bound branch/checkpoint identity, typed payloads, idempotent CAS event storage, and fail-closed replay transitions.
-  required_next_action: Claim T040-plan-scheduler-contracts after reviewing scheduler ownership and the recovery integration boundary.
+  summary: T040 completed with immutable tenant-scoped plan DAG contracts, deterministic validation/topological ordering, durable scheduler node claims, leases, fairness, resource reservations, cancellation, restart reconciliation, CAS, and idempotent in-memory adapters.
+  required_next_action: Claim T050-agentgit-control-plane after reviewing the T040 contracts and preserving the workflow-gate and scheduler ownership boundaries.
