@@ -26,6 +26,7 @@ public record FailureObservation(TenantId tenantId, String taskId, String operat
         evidenceRefs = boundedList(evidenceRefs, 32, "evidenceRefs");
         diagnostics = boundedMap(diagnostics, 16, 256, "diagnostics");
         fingerprint = text(fingerprint, "fingerprint", 128);
+        if (!fingerprint.equals(error.code() + ":" + sourceSnapshot.contentDigest().value())) throw new IllegalArgumentException("fingerprint does not match stable failure identity");
     }
 
     public static FailureObservation of(TenantId tenantId, String taskId, String operation, String agentId,

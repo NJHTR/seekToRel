@@ -2,7 +2,6 @@ package com.reportai.recovery;
 
 public final class RecoveryExecutor {
     private final PrecheckPort precheck;
-    private final java.util.Set<String> usedCheckpoints = java.util.concurrent.ConcurrentHashMap.newKeySet();
     public RecoveryExecutor(PrecheckPort precheck) { this.precheck=java.util.Objects.requireNonNull(precheck,"precheck"); }
     public RecoveryPayload validateAndExecute(FailureObservation observation, RecoveryPayload request, RepairCheckpoint checkpoint, RecoveryStrategy strategy) {
         if(observation==null||request==null||checkpoint==null||strategy==null) throw new NullPointerException("recovery execution input");
@@ -10,8 +9,7 @@ public final class RecoveryExecutor {
         PrecheckPort.PrecheckResult result=precheck.validate(observation,checkpoint,request);
         if(!result.accepted()) throw new RecoveryConflictException("recovery candidate failed program precheck: "+result.reason());
         if (result.receiptId().equals(checkpoint.precheckReceiptId())) throw new RecoveryConflictException("repair must use a fresh precheck receipt");
-        String checkpointKey = observation.tenantId().value() + ":" + observation.taskId() + ":" + checkpoint.branchRef() + ":" + checkpoint.checkpointRef();
-        if (!usedCheckpoints.add(checkpointKey)) throw new RecoveryConflictException("repair branch/checkpoint was already used");
+        if (!result.branchRef().equals(checkpoint.branchRef()) || !result.checkpointRef().equals(checkpoint.checkpointRef())) throw new RecoveryConflictException("precheck returned a different repair identity");
         return strategy.execute(observation,request,new RepairCheckpoint(checkpoint.branchRef(),checkpoint.checkpointRef(),result.receiptId()));
     }
     private static boolean compatible(RecoveryAction action, RecoveryPayload payload) {

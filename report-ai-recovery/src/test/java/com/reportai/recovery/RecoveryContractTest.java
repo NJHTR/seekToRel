@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RecoveryContractTest {
     private static final TenantId TENANT = new TenantId("tenant-a");
     private static final InputSnapshot SNAPSHOT = new InputSnapshot(1, new SnapshotId("snap-1"), TENANT, List.of(), Sha256Digest.ofText("data"), List.of(), Instant.parse("2026-01-01T00:00:00Z"), Map.of());
-    private FailureObservation observation(FailureClass kind, boolean retryable, String code) { return new FailureObservation(TENANT,"task-1","run","agent",SNAPSHOT,new ErrorDetail(code,kind,retryable,"safe","hint",Map.of()),1,Instant.parse("2026-01-01T00:00:00Z"),List.of(),Map.of(),code+"-fp"); }
+    private FailureObservation observation(FailureClass kind, boolean retryable, String code) { return FailureObservation.of(TENANT,"task-1","run","agent",SNAPSHOT,new ErrorDetail(code,kind,retryable,"safe","hint",Map.of()),1,Instant.parse("2026-01-01T00:00:00Z")); }
 
     @Test void routesEveryFailureClassFailClosed() {
         DeterministicFailureClassifier classifier = new DeterministicFailureClassifier();
@@ -57,9 +57,23 @@ class RecoveryContractTest {
     }
 
     @Test void everyExecutionRequiresFreshCheckpointAndPrecheck() {
-        PrecheckPort gate=(o,cp,p)->new PrecheckPort.PrecheckResult(true,"fresh-receipt",""); RecoveryExecutor executor=new RecoveryExecutor(gate);
+        PrecheckPort gate=(o,cp,p)->new PrecheckPort.PrecheckResult(true,"fresh-receipt","",cp.branchRef(),cp.checkpointRef()); RecoveryExecutor executor=new RecoveryExecutor(gate);
         FailureObservation o=observation(FailureClass.CODE,true,"CODE_ERROR"); RecoveryStrategy strategy=new RecoveryStrategy(){public RecoveryAction action(){return RecoveryAction.DIAGNOSE_CODE;} public RecoveryPayload execute(FailureObservation ignored,RecoveryPayload request,RepairCheckpoint cp){assertEquals("fresh-receipt",cp.precheckReceiptId()); return request;}};
         RecoveryPayload payload=new CodeDiagnosisRequest("code","fp"); assertSame(payload,executor.validateAndExecute(o,payload,new RepairCheckpoint("branch-2","cp-2","old"),strategy));
-        RecoveryExecutor blocked=new RecoveryExecutor((x,y,z)->new PrecheckPort.PrecheckResult(false,"receipt","unsafe")); assertThrows(RecoveryConflictException.class,()->blocked.validateAndExecute(o,payload,new RepairCheckpoint("branch","cp","r"),strategy));
+        RecoveryExecutor blocked=new RecoveryExecutor((x,y,z)->new PrecheckPort.PrecheckResult(false,"receipt","unsafe","branch","cp")); assertThrows(RecoveryConflictException.class,()->blocked.validateAndExecute(o,payload,new RepairCheckpoint("branch","cp","r"),strategy));
+    }
+
+    @Test void ocrThresholdAndStableIdentityAreEnforced() {
+        assertThrows(IllegalArgumentException.class, () -> new OcrResult("text", 0.79, true));
+        assertDoesNotThrow(() -> new OcrResult("text", 0.80, true));
+        assertDoesNotThrow(() -> OcrResult.withThreshold("text", 0.61, true, 0.60));
+        assertThrows(IllegalArgumentException.class, () -> new FailureObservation(TENANT,"task-1","run","agent",SNAPSHOT,new ErrorDetail("CODE_ERROR",FailureClass.CODE,true,"safe","hint",Map.of()),1,Instant.now(),List.of(),Map.of(),"forged"));
+    }
+
+    @Test void transitionTableRejectsApprovalFromPending() {
+        FailureObservation o=observation(FailureClass.CODE,true,"CODE_ERROR"); RecoveryAttempt a=RecoveryAttempt.create("rec-2",o,new DeterministicFailureClassifier().classify(o),2); InMemoryRecoveryCaseRepository repo=new InMemoryRecoveryCaseRepository(); repo.create(a);
+        RepairCheckpoint cp=new RepairCheckpoint("branch","checkpoint","receipt"); RecoveryAttempt next=a.next(RecoveryState.WAITING_FOR_APPROVAL,RecoveryDecision.WAITING_FOR_DOWNLOAD_APPROVAL,cp,1);
+        RecoveryEvent forged=new RecoveryEvent(new EventId("evt-forged"),new CommandId("cmd-forged"),"idem-forged",a.recoveryId(),TENANT,RecoveryAction.APPROVE_DOWNLOAD,RecoveryEventType.DOWNLOAD_APPROVAL_GRANTED,a.state(),next.state(),1,SNAPSHOT.snapshotId().value(),"digest",Instant.now());
+        assertThrows(RecoveryConflictException.class,()->repo.append(a,next,forged));
     }
 }
