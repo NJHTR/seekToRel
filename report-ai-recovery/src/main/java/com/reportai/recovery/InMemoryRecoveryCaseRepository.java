@@ -32,11 +32,13 @@ public final class InMemoryRecoveryCaseRepository implements RecoveryCaseReposit
         if (!validType(event) || event.from() != current.state() || event.to() != next.state()) return false;
         return switch (event.action()) {
             case START_ATTEMPT -> current.state() == RecoveryState.PENDING && next.state() == RecoveryState.RUNNING;
-            case APPROVE_DOWNLOAD, REJECT_DOWNLOAD -> current.state() == RecoveryState.WAITING_FOR_APPROVAL;
-            case SUBMIT_INPUT -> current.state() == RecoveryState.WAITING_FOR_INPUT;
+            case APPROVE_DOWNLOAD -> current.state() == RecoveryState.WAITING_FOR_APPROVAL && next.state() == RecoveryState.RUNNING;
+            case REJECT_DOWNLOAD -> current.state() == RecoveryState.WAITING_FOR_APPROVAL && next.state() == RecoveryState.FAILED;
+            case SUBMIT_INPUT -> current.state() == RecoveryState.WAITING_FOR_INPUT && next.state() == RecoveryState.RUNNING;
+            case DIAGNOSE_CODE, REPAIR_DEPENDENCY, RUN_OCR, EXTRACT_CHART, RESOLVE_CONFLICT -> current.state() == RecoveryState.RUNNING && next.state() == RecoveryState.RUNNING;
             case COMPLETE -> current.state() == RecoveryState.RUNNING && next.state() == RecoveryState.COMPLETED;
-            case ESCALATE -> next.state() == RecoveryState.ESCALATED;
-            default -> current.state() == RecoveryState.RUNNING;
+            case ESCALATE -> current.state() != RecoveryState.COMPLETED && current.state() != RecoveryState.FAILED && current.state() != RecoveryState.ESCALATED && current.state() != RecoveryState.EXHAUSTED && next.state() == RecoveryState.ESCALATED;
+            default -> false;
         };
     }
     private static String key(String id,TenantId t){return t.value()+":"+id;}

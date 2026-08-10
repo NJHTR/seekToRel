@@ -76,4 +76,14 @@ class RecoveryContractTest {
         RecoveryEvent forged=new RecoveryEvent(new EventId("evt-forged"),new CommandId("cmd-forged"),"idem-forged",a.recoveryId(),TENANT,RecoveryAction.APPROVE_DOWNLOAD,RecoveryEventType.DOWNLOAD_APPROVAL_GRANTED,a.state(),next.state(),1,SNAPSHOT.snapshotId().value(),"digest",Instant.now());
         assertThrows(RecoveryConflictException.class,()->repo.append(a,next,forged));
     }
+
+    @Test void transitionTableRejectsWrongApprovalAndInputTargets() {
+        FailureObservation o=observation(FailureClass.CODE,true,"CODE_ERROR"); RecoveryAttempt a=RecoveryAttempt.create("rec-3",o,new DeterministicFailureClassifier().classify(o),2); InMemoryRecoveryCaseRepository repo=new InMemoryRecoveryCaseRepository(); repo.create(a);
+        RepairCheckpoint cp=new RepairCheckpoint("branch","checkpoint","receipt"); RecoveryAttempt pendingApproval=a.next(RecoveryState.WAITING_FOR_APPROVAL,RecoveryDecision.WAITING_FOR_DOWNLOAD_APPROVAL,cp,1);
+        RecoveryEvent wrongApproval=new RecoveryEvent(new EventId("evt-wrong-approval"),new CommandId("cmd-wrong-approval"),"idem-wrong-approval",a.recoveryId(),TENANT,RecoveryAction.APPROVE_DOWNLOAD,RecoveryEventType.DOWNLOAD_APPROVAL_GRANTED,a.state(),pendingApproval.state(),1,SNAPSHOT.snapshotId().value(),"digest",Instant.now());
+        assertThrows(RecoveryConflictException.class,()->repo.append(a,pendingApproval,wrongApproval));
+        RecoveryAttempt waitingInput=a.next(RecoveryState.WAITING_FOR_INPUT,RecoveryDecision.WAITING_FOR_INPUT,cp,1);
+        RecoveryEvent wrongInput=new RecoveryEvent(new EventId("evt-wrong-input"),new CommandId("cmd-wrong-input"),"idem-wrong-input",a.recoveryId(),TENANT,RecoveryAction.SUBMIT_INPUT,RecoveryEventType.ATTEMPT_COMPLETED,a.state(),waitingInput.state(),1,SNAPSHOT.snapshotId().value(),"digest",Instant.now());
+        assertThrows(RecoveryConflictException.class,()->repo.append(a,waitingInput,wrongInput));
+    }
 }
