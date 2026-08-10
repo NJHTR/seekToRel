@@ -85,6 +85,9 @@ public final class PlanGraphValidator {
                 if (target != null && target.kind() != PlanNodeKind.JOIN) {
                     violations.add("JOIN edge target must be a JOIN node: " + edge.toNodeId());
                 }
+                if (!edge.toNodeId().equals(edge.joinRef())) {
+                    violations.add("JOIN edge reference must match its target: " + edge.toNodeId());
+                }
             }
             if (source != null && source.kind() == PlanNodeKind.START
                     && edge.semantics() == PlanEdgeSemantics.JOIN) {

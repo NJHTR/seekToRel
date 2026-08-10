@@ -208,7 +208,9 @@ public final class InMemoryPlanNodeSchedulerStore implements PlanNodeSchedulerSt
     public synchronized PlanNodeCancelResult requestCancellation(PlanNodeCancelCommand command) {
         Objects.requireNonNull(command, "command");
         for (PlanNode node : nodes.values()) {
-            if (command.idempotencyKey().equals(node.cancellationIdempotencyKey())) {
+            if (node.ref().tenantId().equals(command.tenantId())
+                    && node.ref().equals(command.ref())
+                    && command.idempotencyKey().equals(node.cancellationIdempotencyKey())) {
                 if (!command.requestDigest().equals(node.cancellationRequestDigest())) {
                     throw new PlanNodeIdempotencyConflictException("cancellation idempotency digest conflict");
                 }

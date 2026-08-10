@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /** Versioned, tenant-scoped immutable graph definition. */
 public record PlanDefinition(String planId, TenantId tenantId, long version,
@@ -44,11 +43,7 @@ public record PlanDefinition(String planId, TenantId tenantId, long version,
 
     public PlanDefinition(String planId, TenantId tenantId, long version,
                            List<PlanNode> nodes, List<PlanEdge> edges) {
-        this(planId, tenantId, version, nodes, edges,
-                edges == null ? Set.of() : edges.stream()
-                        .filter(edge -> edge != null && edge.semantics() == PlanEdgeSemantics.CONDITIONAL)
-                        .map(PlanEdge::conditionRef)
-                        .collect(Collectors.toCollection(TreeSet::new)));
+        this(planId, tenantId, version, nodes, edges, Set.of());
     }
 
     /** Convenience constructor for callers that use the version before tenant scope. */

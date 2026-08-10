@@ -48,6 +48,13 @@ class PlanContractsTest {
                 List.of(PlanNode.start("start"), PlanNode.task("a"), PlanNode.end("end")),
                 List.of(PlanEdge.serial("start", "a"), PlanEdge.join("a", "end", "missing")));
         assertThrows(PlanGraphValidationException.class, () -> PlanGraphValidator.validate(badJoin));
+
+        PlanDefinition splitJoinReference = new PlanDefinition("split-join", TENANT, 1,
+                List.of(PlanNode.start("start"), PlanNode.task("a"), PlanNode.join("join-a"),
+                        PlanNode.join("join-b"), PlanNode.end("end")),
+                List.of(PlanEdge.serial("start", "a"), PlanEdge.join("a", "join-a", "join-b"),
+                        PlanEdge.join("a", "join-a"), PlanEdge.serial("join-a", "end")));
+        assertThrows(PlanGraphValidationException.class, () -> PlanGraphValidator.validate(splitJoinReference));
     }
 
     @Test
@@ -81,6 +88,8 @@ class PlanContractsTest {
                 PlanGraphValidator.validate(definition));
         assertThrows(IllegalArgumentException.class, () -> new PlanDefinition("bad-condition", TENANT, 1,
                 definition.nodes(), definition.edges(), Set.of("other")));
+        assertThrows(IllegalArgumentException.class, () -> new PlanDefinition("implicit-condition", TENANT, 1,
+                definition.nodes(), definition.edges()));
     }
 
     @Test

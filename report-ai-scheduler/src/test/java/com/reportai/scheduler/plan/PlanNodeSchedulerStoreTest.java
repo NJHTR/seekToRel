@@ -128,6 +128,23 @@ class PlanNodeSchedulerStoreTest {
                 "key-other", node.ref(), new TenantId("tenant-b"), node.version(), "reason", NOW));
     }
 
+    @Test
+    void cancellationIdempotencyIsScopedToTenantAndNode() {
+        InMemoryPlanNodeSchedulerStore store = new InMemoryPlanNodeSchedulerStore();
+        PlanNode first = store.submit(submission("cancel-a", TENANT_A, 1, 0), NOW).node();
+        PlanNode second = store.submit(submission("cancel-b", new TenantId("tenant-b"), 1, 1), NOW).node();
+        PlanNodeCancelCommand firstCommand = new PlanNodeCancelCommand(new CommandId("cancel-a-command"),
+                "shared-cancel-key", first.ref(), TENANT_A, first.version(), "cancel", NOW);
+        PlanNodeCancelCommand secondCommand = new PlanNodeCancelCommand(new CommandId("cancel-b-command"),
+                "shared-cancel-key", second.ref(), second.ref().tenantId(), second.version(), "cancel", NOW);
+        assertTrue(store.requestCancellation(firstCommand).requested());
+        assertTrue(store.requestCancellation(secondCommand).requested());
+
+        PlanNodeCancelCommand retry = new PlanNodeCancelCommand(new CommandId("cancel-a-retry"),
+                "shared-cancel-key", first.ref(), TENANT_A, first.version(), "cancel", NOW);
+        assertTrue(store.requestCancellation(retry).duplicate());
+    }
+
     private static PlanNodeSubmission submission(String nodeId, TenantId tenant, int priority, long tenantSequence) {
         return submission(nodeId, tenant, priority, tenantSequence,
                 new PrecheckAttestation("att-" + nodeId, tenant, digest(), true,

@@ -35,7 +35,8 @@ public record PlanNodeCancelCommand(CommandId commandId, String idempotencyKey, 
     public static Sha256Digest computeDigest(CommandId commandId, String idempotencyKey,
                                              PlanNodeRef ref, TenantId tenantId, long expectedVersion,
                                              String reason) {
-        return Sha256Digest.ofText(commandId.value() + '|' + idempotencyKey + '|'
+        Objects.requireNonNull(commandId, "commandId");
+        return Sha256Digest.ofText(idempotencyKey + '|'
                 + ref.durableKey() + '|' + tenantId.value() + '|' + expectedVersion + '|' + reason);
     }
 
