@@ -1,3 +1,7 @@
+<img width="2559" height="1413" alt="685594f7420c47dab599c85a407f0034" src="https://github.com/user-attachments/assets/221fcb96-639f-4c87-9a69-992eeb66c31d" />
+<img width="2559" height="1409" alt="ac28b421ec036a4d1567663276c1a3d1" src="https://github.com/user-attachments/assets/61c63beb-5866-4c53-9dd2-72f7ea25ac95" />
+<img width="2559" height="1411" alt="699a14fc2ea5142d59dae0392ae9addd" src="https://github.com/user-attachments/assets/b3f50c9f-9ff4-4045-99a3-ad223c268504" />
+
 # Nexus
 
 Nexus is the user-facing name of the ReportAI agent-oriented document automation platform. `ReportAI` remains the repository and backend technical identifier. The first product slice is automated university experiment reports; the platform boundary is intentionally generic so the same document, workflow, tool, runtime, and review capabilities can later support technical reports, test reports, and weekly reports.
