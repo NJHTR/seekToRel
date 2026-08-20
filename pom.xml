@@ -37,7 +37,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.5.3</spring-boot.version>
-        <poi.version>5.4.1</poi.version>
+        <poi.version>5.5.1</poi.version>
         <minio.version>8.5.10</minio.version>
         <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
         <docker-java.version>3.4.1</docker-java.version>
