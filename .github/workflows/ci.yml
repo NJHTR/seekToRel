@@ -46,7 +46,7 @@ jobs:
           jar tf "$jar" | grep -q '^BOOT-INF/lib/spring-boot-'
       - name: Publish Java quality reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: java-quality-reports
           if-no-files-found: ignore
@@ -113,7 +113,7 @@ jobs:
         run: bash ./mvnw -B -ntp -Psecurity verify -DskipTests
       - name: Publish dependency scan
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dependency-check-report
           if-no-files-found: error
@@ -150,7 +150,7 @@ jobs:
           find . -path '*/target/surefire-reports/*' -type f -exec cp --parents '{}' target/integration-evidence/ \; || true
       - name: Publish integration evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: container-integration-evidence
           if-no-files-found: warn
